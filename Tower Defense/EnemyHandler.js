@@ -23,6 +23,8 @@ class Enemy {
     this.speed = speed;
     this.pathPoints = PathPoints;
     this.currentPoint = 0;
+    this.completed = false;
+    this.health = 1
   }
   
   //sets up move function, loops automaticly
@@ -37,15 +39,15 @@ class Enemy {
 
     this.x += (dx * this.speed) / (distance * 10);
     this.y += (dy * this.speed) / (distance * 10);
-    //console.log(this.currentPoint)
-    if (distance <= 1) {
+    //console.log(distance)
+    if (floor(distance) <= 1 + this.speed / 5){
       this.x = targetX;
       this.y = targetY;
       this.currentPoint++;
 
       if (this.currentPoint >= this.pathPoints.length / 2) {
-        clearInterval(interval);
-        console.log("Done!")
+        this.completed = true
+        GameHealth -= this.health
       }
     }
     }, 1000/60);
