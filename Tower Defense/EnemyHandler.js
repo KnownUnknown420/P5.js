@@ -71,6 +71,3 @@ function CreateWave(Amount, Delay, x, y, h, speed) {
     Enemies.push(enemy);
   }
 }
-
-
-
