@@ -2,20 +2,21 @@ let PlacedTowers = [];
 let Bullets = [];
 let selectedTower = false;
 
-function MakeBullet(startX, startY, targetX, targetY, speed) {
-  let bullet = {};
-  bullet.x = startX;
-  bullet.y = startY;
-  bullet.speed = speed;
-  bullet.targetX = targetX;
-  bullet.targetY = targetY;
-  bullet.reachedTarget = false;
+class Bullet {
+  constructor(startX, startY, targetX, targetY, speed) {
+    this.x = startX;
+    this.y = startY;
+    this.speed = speed;
+    this.targetX = targetX;
+    this.targetY = targetY;
+    this.reachedTarget = false;
+  }
 
-  bullet.update = function () {
+  update() {
     if (!this.reachedTarget) {
       let dx = this.targetX - this.x;
       let dy = this.targetY - this.y;
-      let distance = Math.sqrt(dx * dx + dy * dy);
+      let distance = sqrt(dx * dx + dy * dy);
       let steps = distance / this.speed;
       this.x += dx / steps;
       this.y += dy / steps;
@@ -24,17 +25,15 @@ function MakeBullet(startX, startY, targetX, targetY, speed) {
         this.reachedTarget = true;
       }
     }
-  };
+  }
 
-  bullet.display = function () {
+  display() {
     if (!this.reachedTarget) {
       strokeWeight(5);
       point(this.x, this.y);
       strokeWeight(1);
     }
-  };
-
-  return bullet;
+  }
 }
 
 function checkRectIntersection(rect1, rect2) {
@@ -207,14 +206,12 @@ class Tower {
       }
       if (nearestEnemy) {
         Bullets.push(
-          MakeBullet(
-            this.x + this.size / 2,
+          new Bullet(this.x + this.size / 2,
             this.y + this.size / 2,
             nearestEnemy.x + this.size / 2,
             nearestEnemy.y + this.size / 2,
-            50
+            50)
           )
-        );
         nearestDistance = 0;
         nearestEnemy.health -= this.damage;
         if (nearestEnemy.health <= 0) {
