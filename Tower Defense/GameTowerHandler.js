@@ -2,6 +2,50 @@ let PlacedTowers = [];
 let Bullets = [];
 let selectedTower = false;
 
+function ShowTowers() {
+  if (selectedTower) {
+    selectedTower.showRange();
+  }
+  if (mouseIsPressed && mouseButton === LEFT && mouseX <= 550) {
+    selectedTower = false;
+  }
+  for (let i = 0; i < PlacedTowers.length; i++) {
+    if (PlacedTowers[i].TowerPlaced == false) {
+      PlacedTowers[i].PlaceTower();
+    } else {
+      PlacedTowers[i].Show();
+      PlacedTowers[i].CheckForMouse();
+      if (GamePaused == false) {
+        PlacedTowers[i].GetTarget();
+        PlacedTowers[i].Attack();
+      }
+    }
+  }
+}
+
+function ShowBullets() {
+  for (let i = Bullets.length - 1; i >= 0; i--) {
+    Bullets[i].update();
+    Bullets[i].display();
+
+    if (Bullets[i].reachedTarget) {
+      Bullets.splice(i, 1);
+    }
+  }
+}
+
+function checkRectIntersection(rect1, rect2) {
+  if (
+    rect1.x < rect2.x + rect2.w &&
+    rect1.x + rect1.w > rect2.x &&
+    rect1.y < rect2.y + rect2.h &&
+    rect1.h + rect1.y > rect2.y
+  ) {
+    return true;
+  }
+  return false;
+}
+
 class Bullet {
   constructor(startX, startY, targetX, targetY, speed) {
     this.x = startX;
@@ -36,48 +80,6 @@ class Bullet {
   }
 }
 
-function checkRectIntersection(rect1, rect2) {
-  if (
-    rect1.x < rect2.x + rect2.w &&
-    rect1.x + rect1.w > rect2.x &&
-    rect1.y < rect2.y + rect2.h &&
-    rect1.h + rect1.y > rect2.y
-  ) {
-    return true;
-  }
-  return false;
-}
-
-function ShowTowers() {
-  if (selectedTower) {
-    selectedTower.showRange();
-  }
-
-  if (mouseIsPressed && mouseButton === LEFT && mouseX <= 550) {
-    selectedTower = false;
-  }
-  for (let i = 0; i < PlacedTowers.length; i++) {
-    if (PlacedTowers[i].TowerPlaced == false) {
-      PlacedTowers[i].PlaceTower();
-    } else {
-      PlacedTowers[i].show();
-      PlacedTowers[i].CheckForMouse();
-      PlacedTowers[i].GetTarget();
-    }
-  }
-}
-
-function ShowBullets() {
-  for (let i = Bullets.length - 1; i >= 0; i--) {
-    Bullets[i].update();
-    Bullets[i].display();
-
-    if (Bullets[i].reachedTarget) {
-      Bullets.splice(i, 1);
-    }
-  }
-}
-
 class Tower {
   constructor() {
     this.name = "Tower";
@@ -94,6 +96,10 @@ class Tower {
     this.Level = 1;
     this.attackdelay = 0;
     this.KillCount = 0;
+    this.DamageType = ["none"];
+    this.TargetMode = "first";
+    this.NearestEnemy = null;
+    this.NearestDistance = Infinity;
   }
 
   PushToList() {
@@ -167,12 +173,16 @@ class Tower {
     this.showRange();
   }
 
-  show() {
-    console.log("Error: No show method found");
+  Show() {
+    console.log("Warning: No show method for " + this.name + " found");
   }
   showRange() {
     fill(this.colorR, this.colorG, this.colorB, 50);
-    circle(this.x + this.size / 2, this.y + this.size / 2, this.radius * 2 - 5);
+    circle(
+      this.x + this.size / 2,
+      this.y + this.size / 2,
+      this.radius * 2 + 15
+    );
   }
   CheckForMouse() {
     if (mouseIsPressed && mouseButton === LEFT) {
@@ -186,42 +196,62 @@ class Tower {
       }
     }
   }
+  
   GetTarget() {
     this.attackdelay++;
     if (this.attackdelay >= this.AttackSpeed * 60) {
-      let nearestDistance = this.radius;
-      let nearestEnemy;
+      let EnemiesInRange = [];
+      let distance;
+      this.NearestDistance = this.radius;
       for (let i = 0; i < Enemies.length; i++) {
-        const distance = dist(
+        let IndexOfEnemy = Enemies[i];
+        distance = dist(
           this.x,
           this.y,
-          Enemies[i].x - Enemies[i].h / 2,
-          Enemies[i].y - Enemies[i].h / 2
+          IndexOfEnemy.x + IndexOfEnemy.h / 2,
+          IndexOfEnemy.y + IndexOfEnemy.h / 2
         );
-        if (distance <= this.radius && distance < nearestDistance) {
-          this.attackdelay = 0;
-          nearestEnemy = Enemies[i];
-          nearestDistance = distance;
+        if (
+          distance <= this.radius &&
+          CheckSpecialType(this.DamageType, IndexOfEnemy.specialType)
+        ) {
+          EnemiesInRange.push(IndexOfEnemy);
         }
       }
-      if (nearestEnemy) {
-        Bullets.push(
-          new Bullet(this.x + this.size / 2,
-            this.y + this.size / 2,
-            nearestEnemy.x + this.size / 2,
-            nearestEnemy.y + this.size / 2,
-            50)
-          )
-        nearestDistance = 0;
-        nearestEnemy.health -= this.damage;
-        if (nearestEnemy.health <= 0) {
-          GameMoney += nearestEnemy.orginalHealth;
-          let index = Enemies.indexOf(nearestEnemy);
-          Enemies.splice(index, 1);
-          nearestEnemy = null;
-          this.KillCount++;
+      for (let i = 0; i < EnemiesInRange.length; i++) {
+        if (this.TargetMode == "first") {
+          this.NearestEnemy = EnemiesInRange[0];
+          this.NearestDistance = distance;
+          this.attackdelay = 0;
         }
-        nearestEnemy = null;
+        if (this.TargetMode == "last") {
+          this.NearestEnemy = EnemiesInRange[EnemiesInRange.length - 1];
+          this.NearestDistance = distance;
+          this.attackdelay = 0;
+        }
+      }
+    }
+  }
+
+  Attack() {
+    if (this.NearestEnemy) {
+      Bullets.push(
+        new Bullet(
+          this.x + this.size / 2,
+          this.y + this.size / 2,
+          this.NearestEnemy.x + this.size / 2,
+          this.NearestEnemy.y + this.size / 2,
+          50
+        )
+      );
+      this.NearestDistance = 0;
+      this.NearestEnemy.health -= this.damage;
+      if (this.NearestEnemy.health <= 0) {
+        GameMoney += this.NearestEnemy.orginalHealth;
+        let index = Enemies.indexOf(this.NearestEnemy);
+        Enemies.splice(index, 1);
+        this.NearestEnemy = null;
+        this.KillCount++;
       }
     }
   }
@@ -238,6 +268,7 @@ class BasicTower extends Tower {
     this.colorG = 150;
     this.SellPrice = 175;
     this.AttackSpeed = 1;
+    this.DamageType = ["none"];
     this.Upgrade = [
       1.0,
       0.7,
@@ -253,7 +284,7 @@ class BasicTower extends Tower {
       1000,
     ];
   }
-  show() {
+  Show() {
     fill(this.colorR, this.colorG, this.colorB);
     square(this.x, this.y, this.size);
     circle(this.x + this.size / 2, this.y + this.size / 2, this.size);
@@ -273,9 +304,10 @@ class SniperTower extends Tower {
     this.radius = 200;
     this.SellPrice = 175;
     this.AttackSpeed = 1.7;
+    this.DamageType = ["tank"];
     this.Upgrade = [6, 1.3, 300, 600, 8, 0.5, 350, 1200, 10, 0.1, 400, 3000];
   }
-  show() {
+  Show() {
     fill(this.colorR, this.colorG, this.colorB);
     square(this.x, this.y, this.size);
     fill(255, 0, 0);
@@ -308,6 +340,7 @@ class MachinegunTower extends Tower {
     this.radius = 200;
     this.SellPrice = 400;
     this.AttackSpeed = 0.3;
+    this.DamageType = ["none"];
     this.Upgrade = [
       0.3,
       0.1,
@@ -323,7 +356,7 @@ class MachinegunTower extends Tower {
       1000,
     ];
   }
-  show() {
+  Show() {
     fill(this.colorR, this.colorG, this.colorB);
     square(this.x, this.y, this.size);
     circle(this.x + this.size / 2, this.y + this.size / 2, this.size);
@@ -335,66 +368,17 @@ class MachinegunTower extends Tower {
 class MissleTower extends Tower {
   constructor() {
     super();
-    this.name = "Missle Tower";
+    this.name = "Tank";
     this.size = 40;
     this.damage = 2;
     this.TowerPrice = 1200;
     this.radius = 150;
     this.SellPrice = 200;
     this.AttackSpeed = 2;
+    this.DamageType = ["tank"];
     this.Upgrade = [5, 1.5, 200, 600, 10, 1, 250, 600, 15, 0.5, 300, 1000];
   }
-
-  GetTarget() {
-    this.attackdelay++;
-    if (this.attackdelay >= this.AttackSpeed * 60) {
-      let nearestDistance = Infinity;
-      let nearestEnemy;
-      for (let i = 0; i < Enemies.length; i++) {
-        let distance = dist(
-          this.x,
-          this.y,
-          Enemies[i].x - Enemies[i].h / 2,
-          Enemies[i].y - Enemies[i].h / 2
-        );
-        if (distance <= this.radius && distance < nearestDistance) {
-          this.attackdelay = 0;
-          nearestEnemy = Enemies[i];
-          nearestDistance = distance;
-        }
-      }
-
-      if (nearestEnemy) {
-        nearestEnemy.health -= this.damage;
-        for (let i = 0; i < Enemies.length; i++) {
-          let distance = dist(
-            nearestEnemy.x,
-            nearestEnemy.y,
-            Enemies[i].x - Enemies[i].h / 2,
-            Enemies[i].y - Enemies[i].h / 2
-          );
-          if (distance <= 50) {
-            Enemies[i].health -= this.damage;
-            if (Enemies[i].health <= 0) {
-              GameMoney += Enemies[i].orginalHealth;
-              let index = Enemies.indexOf(Enemies[i]);
-              Enemies.splice(index, 1);
-              this.KillCount++;
-            }
-          }
-        }
-        if (nearestEnemy.health <= 0) {
-          GameMoney += nearestEnemy.orginalHealth;
-          let index = Enemies.indexOf(nearestEnemy);
-          Enemies.splice(index, 1);
-          nearestEnemy = null;
-          this.KillCount++;
-        }
-      }
-    }
-  }
-
-  show() {
+  Show() {
     fill(this.colorR, this.colorG, this.colorB);
     square(this.x, this.y, this.size);
     circle(this.x + this.size / 2, this.y + this.size / 2, this.size);
@@ -403,23 +387,23 @@ class MissleTower extends Tower {
   }
 }
 
-
 class DroneTower extends Tower {
   constructor() {
     super();
-    this.EnemySize = 0
+    this.EnemySize = 0;
     this.name = "Drone";
     this.size = 50;
     this.damage = 1;
     this.TowerPrice = 1500;
     this.radius = 50;
     this.SellPrice = 1200;
-    this.AttackSpeed = 0.3 ;
+    this.AttackSpeed = 0.3;
     this.colorR = 200;
     this.colorG = 200;
-    this.Upgrade = [1, 0.3, 50, 600, 1, 0.3, 50, 1200, 1, 0.3, 50, 2000];
+    this.Upgrade = [1, 0.1, 50, 600, 2, 0.07, 50, 1200, 3, 0.01, 50, 2500];
     this.CX = 250;
     this.CY = 250;
+    this.DamageType = ["camo"];
   }
 
   GetTarget() {
@@ -430,15 +414,20 @@ class DroneTower extends Tower {
       let targetY = Enemies[0].y;
 
       //Calculates the difference between the enemy's current position and the target point
-      let dx = (targetX - (Enemies[0].h / 2)) - this.CX;
-      let dy = (targetY - (Enemies[0].h / 2)) - this.CY;
+      let dx = targetX - Enemies[0].h / 2 - this.CX;
+      let dy = targetY - Enemies[0].h / 2 - this.CY;
       let distance = sqrt(dx * dx + dy * dy);
 
       //Moves the enemy closer to the target point
       this.CX += (dx * 50) / (distance * 10);
       this.CY += (dy * 50) / (distance * 10);
-      this.EnemySize = Enemies[0].h; 
-      if(this.CX <= targetX + this.radius && this.CY <= targetY + this.radius && this.attackdelay >= this.AttackSpeed * 60){
+      this.EnemySize = Enemies[0].h;
+      if (
+        this.CX <= targetX + this.radius &&
+        this.CY <= targetY + this.radius &&
+        this.attackdelay >= this.AttackSpeed * 60 &&
+        CheckSpecialType(this.DamageType, Enemies[0].specialType)
+      ) {
         this.attackdelay = 0;
         Enemies[0].health -= this.damage;
         if (Enemies[0].health <= 0) {
@@ -449,14 +438,15 @@ class DroneTower extends Tower {
         }
       }
     }
-    circle(this.CX + this.EnemySize, this.CY + this.EnemySize, 35);
   }
 
-  show() {
+  Show() {
     fill(this.colorR, this.colorG, this.colorB);
     square(this.x, this.y, this.size);
     circle(this.x + this.size / 2, this.y + this.size / 2, this.size);
     fill(255, 255, 255);
     text(this.Level, this.x + this.size / 2 - 6, this.y + this.size / 2 + 6);
+    fill(255, 255, 0);
+    circle(this.CX + this.EnemySize, this.CY + this.EnemySize, 35);
   }
 }
