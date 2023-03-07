@@ -9,49 +9,56 @@ let GameMoney = 10000;
 let WaveCount = 1;
 let WaveReward = 100;
 
-// Refreshes the screen by drawing the background, track, towers, enemies, text elements, and game images
-function RefreshScreen() {
-    // Draw the background
-    background(MapData[0], MapData[1], MapData[2]);
-
-    // Reset to Track Color
-    fill(MapData[3], MapData[4], MapData[5]);
-  
-    
-
-    // Draw Track
-    strokeWeight(0);
-    DrawTrack();
-    strokeWeight(1);
-  
-    //Shows all bullets
-    ShowBullets()
-
-    // Draw All Active Enemies
-    ShowEnemies();
-  
-  // Draw All Placed Towers
-    ShowTowers();
-
-    fill(0, 0, 0);
-    textSize(20);
-
-    // Draw Image Elements
-    DrawGameImages();
-
-    // Draw Shop
-    CreateShop();
-
-    // Draw Text Elements
-    DrawGameText();
-}
+let GamePaused = false;
 
 // Main loop that refreshes the screen every iteration
 function draw() {
-  RefreshScreen();
+  if (focused){
+     // Draw the background
+  background(MapData[0], MapData[1], MapData[2]);
+
+  // Reset to Track Color
+  fill(MapData[3], MapData[4], MapData[5]);
+
+  // Draw Track
+  strokeWeight(0);
+  DrawTrack();
+  strokeWeight(1);
+
+  //Shows all bullets
+  ShowBullets();
+
+  //SpawnEnemies
+  SpawnEnemiesInWaveQuery();
+
+  // Draw All Active Enemies
+  ShowEnemies();
+
+  // Draw All Placed Towers
+  ShowTowers();
+
+  fill(0, 0, 0);
+  textSize(20);
+
+  // Draw Image Elements
+  DrawGameImages();
+
+  // Draw Shop
+  CreateShop();
+
+  // Draw Text Elements
+  DrawGameText();
+  }
 }
 
 // Main setup function, mainly used for testing
 function setup() {
   createCanvas(Xmax + ShopSize, Ymax);
+  keyPressed();
+}
+
+function keyPressed() {
+  if (keyCode === 32) {
+    PauseGame();
+  }
 }
