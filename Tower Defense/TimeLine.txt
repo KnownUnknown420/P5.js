@@ -1,0 +1,18 @@
+Feb 2: Started with idea of a tower defense game, Built map handler Built Waypoint system for enemies. This Should be a pretty easy thing to do. 
+
+Feb 3 - Jan 4: Finished enemy movement system. Not as easy as I thought because the size of the enemies mess stuff up. 
+
+Feb 5: Optimized code of what I had. I got the preforamnce up alot by refactoring code and removing if statements and bools that where unneeded. 
+
+Feb 6: Worked on a function to spawn enemies, Learned about settime out
+
+Feb 7 - 20: Worked on and off with the tower placement and optimization
+
+Feb 20-25: Added different tower and enemytypes. Attemped working on a pause system, but the current way of spawning enemies doesnt allow this to work. Im going to have to rewrite the enemy spawner code. I need it to allow me to spawn enemies at anypoint, without having to wait for the previous function call to pause all code after it, this is because of the Settime function. Just give me a time.sleep function plslslspslpplsplsplsp. 
+
+Feb 27: Added Pause System and rewrote the pause system. More doccumntation above the function. 
+
+March 6: added pasuing with spacebar, Along with button. Got The idea too make targeting mode for each enemy. (Im pretty sure I have a fast way of doing this, which might be cool.) Thought of it in english instead of reading. 
+
+March 7: Thought About how to do it at work last night. I rewrote the code and refactored the attack and targeting into two diffrent methods for readability. 
+Working on adding a button that changes the mode, but with a check for towers that have there own Attack Method. This means I have to refactor the Missle and the Drone Attack/Targeting codes
