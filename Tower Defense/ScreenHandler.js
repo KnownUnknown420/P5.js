@@ -14,6 +14,9 @@ let MoneyStackScreen;
 let BasicTowerButton;
 let SellTowerButton;
 let DeselectButton;
+
+let PauseButton;
+
 let Price = {
   BasicTower: 200,
   SniperTower: 350,
@@ -49,7 +52,6 @@ function UpgradeTower() {
 }
 
 function SellTower() {
-  console.log(selectedTower);
   let index = PlacedTowers.indexOf(selectedTower);
   GameMoney += selectedTower.SellPrice;
   PlacedTowers.splice(index, 1);
@@ -155,20 +157,24 @@ function preload() {
   MachinegunTowerTowerButton.mousePressed(PlaceMGTower);
 
   MissleLauncherButton = createButton(
-    "($" + Price.MissleLauncherTower + ") M.launcher"
+    "($" + Price.MissleLauncherTower + ") Tank"
   );
   MissleLauncherButton.style("background-color", "grey");
   MissleLauncherButton.position(690, 70);
   MissleLauncherButton.size(95, 50);
   MissleLauncherButton.mousePressed(PlaceMissleTower);
 
-  DroneTowerButton = createButton(
-    "($" + Price.Drone + ") Drone"
-  );
+  DroneTowerButton = createButton("($" + Price.Drone + ") Drone");
   DroneTowerButton.style("background-color", "grey");
   DroneTowerButton.position(560, 130);
   DroneTowerButton.size(95, 50);
   DroneTowerButton.mousePressed(PlaceDroneTower);
+
+  PauseButton = createButton("Pause");
+  PauseButton.style("background-color", "green");
+  PauseButton.position(455, 600);
+  PauseButton.size(95, 50);
+  PauseButton.mousePressed(PauseGame);
 }
 
 // Function to draw all game images to the screen
@@ -191,7 +197,7 @@ function ResetColors() {
   SniperTowerButton.style("background-color", "gray");
   MachinegunTowerTowerButton.style("background-color", "gray");
   MissleLauncherButton.style("background-color", "gray");
-  DroneTowerButton.style("background-color", "gray")
+  DroneTowerButton.style("background-color", "gray");
 }
 
 // Function to create the shop
@@ -199,7 +205,7 @@ function CreateShop() {
   ResetColors();
   fill(10, 100, 100);
   square(550, 0, 600);
-  
+
   if (GameMoney >= Price.BasicTower) {
     BasicTowerButton.style("background-color", "green");
   }
@@ -215,13 +221,15 @@ function CreateShop() {
   if (GameMoney >= Price.MissleLauncherTower) {
     MissleLauncherButton.style("background-color", "green");
   }
-  
-  if (GameMoney >= Price.Drone){
-    DroneTowerButton.style("background-color", "green")
+
+  if (GameMoney >= Price.Drone) {
+    DroneTowerButton.style("background-color", "green");
   }
 
   //Upgrade area
   line(550, 400, Xmax + ShopSize, 400);
+
+  fill(0, 0, 0);
 
   if (selectedTower === false) {
     UpgradeButton.hide();
