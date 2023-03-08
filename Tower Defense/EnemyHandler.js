@@ -1,51 +1,11 @@
-//array with all current enemies on screen
-let Enemies = [];
-let WaveQuery = [];
 let SpawnCheck = false;
-
-//points that the enemies have to follow
-let PathPoints = [
-  385,
-  110,
-  150,
-  110,
-  150,
-  360,
-  400,
-  360,
-  400,
-  460,
-  200,
-  460,
-  200,
-  600,
-];
-
-//Shows the enemies on the canvas
-function ShowEnemies() {
-  for (let i = 0; i < Enemies.length; i++) {
-    Enemies[i].show();
-    Enemies[i].showHealth();
-    if (GamePaused == false) {
-      Enemies[i].move();
-    }
-  }
-}
-
-function SpawnEnemiesInWaveQuery() {
-  if (WaveQuery.length != 0 && GamePaused == false) {
-    for (let i = 0; i < WaveQuery.length; i++) {
-      WaveQuery[i].SpawnEnemies();
-    }
-  }
-}
 
 //Enemy class
 class Enemy {
   //Builds an enemy with initial position and speed
   constructor() {
     this.h = 30; // Height of the enemy square
-    this.x = MapData[6] - this.h / 2; // X-coordinate of the enemy
+    this.x = MapData[6] - Center(this.h); // X-coordinate of the enemy
     this.y = MapData[7] - this.h; // Y-coordinate of the enemy
     this.speed = 30; // Speed of the enemy
     this.pathPoints = PathPoints; // Path that the enemy has to follow
@@ -109,8 +69,8 @@ class Enemy {
       this.RainbowCheck = !this.RainbowCheck;
     }
 
-    fill(this.colorR,this.colorG,this.colorB)
-    
+    fill(this.colorR, this.colorG, this.colorB);
+
     if (this.specialType.includes("camo")) {
       fill(this.RainbowColor, this.colorG, this.RainbowColor);
     }
@@ -127,9 +87,9 @@ class Enemy {
 
     if (this.Blimp == true) {
       if (this.Turning == true) {
-        ellipse(this.x + this.h / 2, this.y + this.h / 2, 80, 50);
+        ellipse(this.x + Center(this.h), this.y + Center(this.h), 80, 50);
       } else {
-        ellipse(this.x + this.h / 2, this.y + this.h / 2, 50, 80);
+        ellipse(this.x + Center(this.h), this.y + Center(this.h), 50, 80);
       }
     } else {
       square(this.x, this.y, this.h);
@@ -191,54 +151,12 @@ class CamoTank extends Enemy {
   }
 }
 
-class EnemyMaker {
-  constructor(Type, Amount, Delay, Debounce, Health, Speed) {
-    this.Type = Type;
-    this.Amount = Amount;
-    this.Delay = Delay;
-    this.Debounce = Debounce;
-    this.Health = Health;
-    this.Speed = Speed;
-    this.Count = 0;
-    this.Timer = 0;
-    this.DelayCheck = false;
-  }
-  SpawnEnemies() {
-    let index = WaveQuery.indexOf(this);
-    if (this.Amount == 0 || this.Amount == null) {
-      console.log("Warning: No wave Amount defined")
-      WaveQuery.splice(index, 1);
-    }
-    if (this.Amount == 1) {
-      let enemy = new this.Type(this.Health, this.Speed);
-      Enemies.push(enemy);
-      WaveQuery.splice(index, 1);
-    }
-
-    this.Timer++;
-    if (this.DelayCheck == false && this.Timer >= this.Delay) {
-      this.DelayCheck = true;
-      let enemy = new this.Type(this.Health, this.Speed);
-      Enemies.push(enemy);
-      this.Count++;
-      this.Timer = 0;
-    }
-    if (this.DelayCheck == true && this.Timer >= this.Debounce) {
-      let enemy = new this.Type(this.Health, this.Speed);
-      Enemies.push(enemy);
-      this.Count++;
-      this.Timer = 0;
-      if (this.Count == this.Amount) {
-        WaveQuery.splice(index, 1);
-      }
-    }
+class Blimp extends Enemy {
+  constructor(Health, Speed) {
+    super();
+    this.health = Health;
+    this.orginalHealth = Health;
+    this.speed = Speed;
+    this.Blimp = true;
   }
 }
-
-function CreateEnemies(Type, Amount, Delay, Debounce, Health, Speed) {
-  WaveQuery.push(new EnemyMaker(Type, Amount, Delay, Debounce, Health, Speed));
-}
-
-CreateEnemies(Camo, 100, 10, 10, 10, 40);
-CreateEnemies(Soilder, 100, 10, 10, 10, 40);
-
