@@ -40,6 +40,24 @@ let TrackData = [
   150,
 ];
 
+//points that the enemies have to follow
+let PathPoints = [
+  385,
+  110,
+  150,
+  110,
+  150,
+  360,
+  400,
+  360,
+  400,
+  460,
+  200,
+  460,
+  200,
+  600,
+];
+
 // Draws the track onto the screen
 function DrawTrack() {
   for (let i = 0; i < TrackData.length; i += 4) {
