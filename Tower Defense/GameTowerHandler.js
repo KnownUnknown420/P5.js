@@ -1,5 +1,6 @@
 let PlacedTowers = [];
 let Bullets = [];
+let Lighting = [];
 let selectedTower = false;
 
 function ShowTowers() {
@@ -31,6 +32,9 @@ function ShowBullets() {
     if (Bullets[i].reachedTarget) {
       Bullets.splice(i, 1);
     }
+  }
+  for (let i = Lighting.length - 1; i >= 0; i--) {
+    Lighting[i].makeLighting();
   }
 }
 
@@ -80,6 +84,28 @@ class Bullet {
   }
 }
 
+class LightingBolt {
+  constructor(Enemy, X, Y) {
+    this.X = X;
+    this.Y = Y;
+    this.Enemy = Enemy;
+    this.Counter = 0;
+  }
+  makeLighting() {
+    this.Counter++;
+    if (this.Counter <= 10) {
+      line(
+        this.X,
+        this.Y,
+        this.Enemy.x + Center(this.Enemy.h),
+        this.Enemy.y + Center(this.Enemy.h)
+      );
+    } else {
+      Lighting.splice(Lighting.indexOf(this), 1);
+    }
+  }
+}
+
 class Tower {
   constructor() {
     this.name = "Tower";
@@ -106,8 +132,8 @@ class Tower {
     PlacedTowers.push(this);
   }
   PlaceTower() {
-    this.x = mouseX - this.size / 2;
-    this.y = mouseY - this.size / 2;
+    this.x = mouseX - Center(this.size);
+    this.y = mouseY - Center(this.size);
     let towerRect = {
       x: this.x,
       y: this.y,
@@ -179,8 +205,8 @@ class Tower {
   showRange() {
     fill(this.colorR, this.colorG, this.colorB, 50);
     circle(
-      this.x + this.size / 2,
-      this.y + this.size / 2,
+      this.x + Center(this.size),
+      this.y + Center(this.size),
       this.radius * 2 + 15
     );
   }
@@ -196,11 +222,11 @@ class Tower {
       }
     }
   }
-  
+
   GetTarget() {
     this.attackdelay++;
     if (this.attackdelay >= this.AttackSpeed * 60) {
-      let EnemiesInRange = [];
+      this.EnemiesInRange = [];
       let distance;
       this.NearestDistance = this.radius;
       for (let i = 0; i < Enemies.length; i++) {
@@ -215,17 +241,19 @@ class Tower {
           distance <= this.radius &&
           CheckSpecialType(this.DamageType, IndexOfEnemy.specialType)
         ) {
-          EnemiesInRange.push(IndexOfEnemy);
+          this.EnemiesInRange.push(IndexOfEnemy);
         }
       }
-      for (let i = 0; i < EnemiesInRange.length; i++) {
+      for (let i = 0; i < this.EnemiesInRange.length; i++) {
         if (this.TargetMode == "first") {
-          this.NearestEnemy = EnemiesInRange[0];
+          this.NearestEnemy = this.EnemiesInRange[0];
           this.NearestDistance = distance;
           this.attackdelay = 0;
         }
         if (this.TargetMode == "last") {
-          this.NearestEnemy = EnemiesInRange[EnemiesInRange.length - 1];
+          this.NearestEnemy = this.EnemiesInRange[
+            this.EnemiesInRange.length - 1
+          ];
           this.NearestDistance = distance;
           this.attackdelay = 0;
         }
@@ -237,10 +265,10 @@ class Tower {
     if (this.NearestEnemy) {
       Bullets.push(
         new Bullet(
-          this.x + this.size / 2,
-          this.y + this.size / 2,
-          this.NearestEnemy.x + this.size / 2,
-          this.NearestEnemy.y + this.size / 2,
+          this.x + Center(this.size),
+          this.y + Center(this.size),
+          this.NearestEnemy.x + Center(this.size),
+          this.NearestEnemy.y + Center(this.size),
           50
         )
       );
@@ -287,9 +315,13 @@ class BasicTower extends Tower {
   Show() {
     fill(this.colorR, this.colorG, this.colorB);
     square(this.x, this.y, this.size);
-    circle(this.x + this.size / 2, this.y + this.size / 2, this.size);
+    circle(this.x + Center(this.size), this.y + Center(this.size), this.size);
     fill(255, 255, 255);
-    text(this.Level, this.x + this.size / 2 - 6, this.y + this.size / 2 + 6);
+    text(
+      this.Level,
+      this.x + Center(this.size) - 6,
+      this.y + Center(this.size) + 6
+    );
   }
 }
 
@@ -311,21 +343,25 @@ class SniperTower extends Tower {
     fill(this.colorR, this.colorG, this.colorB);
     square(this.x, this.y, this.size);
     fill(255, 0, 0);
-    circle(this.x + this.size / 2, this.y + this.size / 2, this.size);
+    circle(this.x + Center(this.size), this.y + Center(this.size), this.size);
     line(
-      this.x + this.size / 2,
+      this.x + Center(this.size),
       this.y,
-      this.x + this.size / 2,
+      this.x + Center(this.size),
       this.y + this.size
     );
     line(
       this.x,
-      this.y + this.size / 2,
+      this.y + Center(this.size),
       this.x + this.size,
-      this.y + this.size / 2
+      this.y + Center(this.size)
     );
     fill(255, 255, 255);
-    text(this.Level, this.x + this.size / 2 - 6, this.y + this.size / 2 + 6);
+    text(
+      this.Level,
+      this.x + Center(this.size) - 6,
+      this.y + Center(this.size) + 6
+    );
   }
 }
 
@@ -359,9 +395,13 @@ class MachinegunTower extends Tower {
   Show() {
     fill(this.colorR, this.colorG, this.colorB);
     square(this.x, this.y, this.size);
-    circle(this.x + this.size / 2, this.y + this.size / 2, this.size);
+    circle(this.x + Center(this.size), this.y + Center(this.size), this.size);
     fill(255, 255, 255);
-    text(this.Level, this.x + this.size / 2 - 6, this.y + this.size / 2 + 6);
+    text(
+      this.Level,
+      this.x + Center(this.size) - 6,
+      this.y + Center(this.size) + 6
+    );
   }
 }
 
@@ -381,9 +421,13 @@ class MissleTower extends Tower {
   Show() {
     fill(this.colorR, this.colorG, this.colorB);
     square(this.x, this.y, this.size);
-    circle(this.x + this.size / 2, this.y + this.size / 2, this.size);
+    circle(this.x + Center(this.size), this.y + Center(this.size), this.size);
     fill(255, 255, 255);
-    text(this.Level, this.x + this.size / 2 - 6, this.y + this.size / 2 + 6);
+    text(
+      this.Level,
+      this.x + Center(this.size) - 6,
+      this.y + Center(this.size) + 6
+    );
   }
 }
 
@@ -443,9 +487,103 @@ class DroneTower extends Tower {
   Show() {
     fill(this.colorR, this.colorG, this.colorB);
     square(this.x, this.y, this.size);
-    circle(this.x + this.size / 2, this.y + this.size / 2, this.size);
+    circle(this.x + Center(this.size), this.y + Center(this.size), this.size);
     fill(255, 255, 255);
-    text(this.Level, this.x + this.size / 2 - 6, this.y + this.size / 2 + 6);
+    text(
+      this.Level,
+      this.x + Center(this.size) - 6,
+      this.y + Center(this.size) + 6
+    );
+    fill(255, 255, 0);
+    circle(this.CX + this.EnemySize, this.CY + this.EnemySize, 35);
+  }
+}
+
+class WizardTower extends Tower {
+  constructor() {
+    super();
+    this.EnemySize = 0;
+    this.name = "Wizard";
+    this.size = 30;
+    this.damage = 1;
+    this.TowerPrice = 1500;
+    this.radius = 150;
+    this.SellPrice = 1200;
+    this.AttackSpeed = 0.9;
+    this.Upgrade = [1.5, 0.7, 150, 400, 3, 0.5, 200, 700, 5, 0.3, 250, 900];
+    this.DamageType = ["camo"];
+    this.timer = 0;
+    this.shooting = false;
+  }
+
+  Attack() {
+    if (this.NearestEnemy) {
+      let FirstEnemy = Enemies.indexOf(this.NearestEnemy);
+      let Enemy2 = Enemies[FirstEnemy + 1];
+      let Enemy3 = Enemies[FirstEnemy + 2];
+      if (this.TargetMode == "first") {
+        if (Enemy2 != null) {
+          Lighting.push(
+            new LightingBolt(
+              Enemy2,
+              this.x + Center(this.size),
+              this.y + Center(this.size)
+            )
+          );
+          Enemy2.health -= this.damage;
+          if (Enemy2.health <= 0) {
+            GameMoney += Enemy2.orginalHealth;
+            let index = Enemies.indexOf(Enemy2);
+            Enemies.splice(index, 1);
+            this.KillCount++;
+          }
+        }
+        if (Enemy3 != null) {
+          Lighting.push(
+            new LightingBolt(
+              Enemy3,
+              this.x + Center(this.size),
+              this.y + Center(this.size)
+            )
+          );
+          Enemy3.health -= this.damage;
+          if (Enemy3.health <= 0) {
+            GameMoney += Enemy3.orginalHealth;
+            let index = Enemies.indexOf(Enemy3);
+            Enemies.splice(index, 1);
+            this.KillCount++;
+          }
+        }
+
+        Lighting.push(
+          new LightingBolt(
+            this.NearestEnemy,
+            this.x + Center(this.size),
+            this.y + Center(this.size)
+          )
+        );
+        this.NearestEnemy.health -= this.damage;
+        if (this.NearestEnemy.health <= 0) {
+          GameMoney += this.NearestEnemy.orginalHealth;
+          let index = Enemies.indexOf(this.NearestEnemy);
+          Enemies.splice(index, 1);
+          this.NearestEnemy = null;
+          this.KillCount++;
+        }
+      }
+    }
+  }
+
+  Show() {
+    fill(this.colorR, this.colorG, this.colorB);
+    square(this.x, this.y, this.size);
+    circle(this.x + Center(this.size), this.y + Center(this.size), this.size);
+    fill(255, 255, 255);
+    text(
+      this.Level,
+      this.x + Center(this.size) - 6,
+      this.y + Center(this.size) + 6
+    );
     fill(255, 255, 0);
     circle(this.CX + this.EnemySize, this.CY + this.EnemySize, 35);
   }
