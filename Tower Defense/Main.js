@@ -13,41 +13,41 @@ let GamePaused = false;
 
 // Main loop that refreshes the screen every iteration
 function draw() {
-  if (focused){
-     // Draw the background
-  background(MapData[0], MapData[1], MapData[2]);
+  if (focused) {
+    // Draw the background
+    background(MapData[0], MapData[1], MapData[2]);
 
-  // Reset to Track Color
-  fill(MapData[3], MapData[4], MapData[5]);
+    // Reset to Track Color
+    fill(MapData[3], MapData[4], MapData[5]);
 
-  // Draw Track
-  strokeWeight(0);
-  DrawTrack();
-  strokeWeight(1);
+    // Draw Track
+    strokeWeight(0);
+    DrawTrack();
+    strokeWeight(1);
 
-  //Shows all bullets
-  ShowBullets();
+    //SpawnEnemies
+    SpawnEnemiesInWaveQuery();
 
-  //SpawnEnemies
-  SpawnEnemiesInWaveQuery();
+    // Draw All Active Enemies
+    ShowEnemies();
 
-  // Draw All Active Enemies
-  ShowEnemies();
+    // Draw All Placed Towers
+    ShowTowers();
 
-  // Draw All Placed Towers
-  ShowTowers();
+    fill(0, 0, 0);
+    textSize(20);
 
-  fill(0, 0, 0);
-  textSize(20);
+    // Draw Image Elements
+    DrawGameImages();
 
-  // Draw Image Elements
-  DrawGameImages();
+    // Draw Shop
+    CreateShop();
 
-  // Draw Shop
-  CreateShop();
-
-  // Draw Text Elements
-  DrawGameText();
+    // Draw Text Elements
+    DrawGameText();
+    
+    //Shows all bullets\
+    ShowAttacks();
   }
 }
 
