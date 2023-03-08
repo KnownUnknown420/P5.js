@@ -16,3 +16,10 @@ March 6: added pasuing with spacebar, Along with button. Got The idea too make t
 
 March 7: Thought About how to do it at work last night. I rewrote the code and refactored the attack and targeting into two diffrent methods for readability. 
 Working on adding a button that changes the mode, but with a check for towers that have there own Attack Method. This means I have to refactor the Missle and the Drone Attack/Targeting codes
+
+I added diffrent visual effects based on enemy types(pulsing color and things like that). Im also working on a new wizard set of towers. Such as mutliattack, freezing, fire. Then after that I hope to achieve a support group of towers, adding buffs and making other towers stronger.
+
+March 8: Finished the first Wizard tower. It can attack th first three towers in its range.
+im now going to do te dumb thing and go back and comment on all the code.
+
+
