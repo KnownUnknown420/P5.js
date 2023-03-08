@@ -1,110 +1,4 @@
-let PlacedTowers = [];
-let Bullets = [];
-let Lighting = [];
 let selectedTower = false;
-
-function ShowTowers() {
-  if (selectedTower) {
-    selectedTower.showRange();
-  }
-  if (mouseIsPressed && mouseButton === LEFT && mouseX <= 550) {
-    selectedTower = false;
-  }
-  for (let i = 0; i < PlacedTowers.length; i++) {
-    if (PlacedTowers[i].TowerPlaced == false) {
-      PlacedTowers[i].PlaceTower();
-    } else {
-      PlacedTowers[i].Show();
-      PlacedTowers[i].CheckForMouse();
-      if (GamePaused == false) {
-        PlacedTowers[i].GetTarget();
-        PlacedTowers[i].Attack();
-      }
-    }
-  }
-}
-
-function ShowBullets() {
-  for (let i = Bullets.length - 1; i >= 0; i--) {
-    Bullets[i].update();
-    Bullets[i].display();
-
-    if (Bullets[i].reachedTarget) {
-      Bullets.splice(i, 1);
-    }
-  }
-  for (let i = Lighting.length - 1; i >= 0; i--) {
-    Lighting[i].makeLighting();
-  }
-}
-
-function checkRectIntersection(rect1, rect2) {
-  if (
-    rect1.x < rect2.x + rect2.w &&
-    rect1.x + rect1.w > rect2.x &&
-    rect1.y < rect2.y + rect2.h &&
-    rect1.h + rect1.y > rect2.y
-  ) {
-    return true;
-  }
-  return false;
-}
-
-class Bullet {
-  constructor(startX, startY, targetX, targetY, speed) {
-    this.x = startX;
-    this.y = startY;
-    this.speed = speed;
-    this.targetX = targetX;
-    this.targetY = targetY;
-    this.reachedTarget = false;
-  }
-
-  update() {
-    if (!this.reachedTarget) {
-      let dx = this.targetX - this.x;
-      let dy = this.targetY - this.y;
-      let distance = sqrt(dx * dx + dy * dy);
-      let steps = distance / this.speed;
-      this.x += dx / steps;
-      this.y += dy / steps;
-
-      if (distance < this.speed) {
-        this.reachedTarget = true;
-      }
-    }
-  }
-
-  display() {
-    if (!this.reachedTarget) {
-      strokeWeight(5);
-      point(this.x, this.y);
-      strokeWeight(1);
-    }
-  }
-}
-
-class LightingBolt {
-  constructor(Enemy, X, Y) {
-    this.X = X;
-    this.Y = Y;
-    this.Enemy = Enemy;
-    this.Counter = 0;
-  }
-  makeLighting() {
-    this.Counter++;
-    if (this.Counter <= 10) {
-      line(
-        this.X,
-        this.Y,
-        this.Enemy.x + Center(this.Enemy.h),
-        this.Enemy.y + Center(this.Enemy.h)
-      );
-    } else {
-      Lighting.splice(Lighting.indexOf(this), 1);
-    }
-  }
-}
 
 class Tower {
   constructor() {
@@ -263,7 +157,7 @@ class Tower {
 
   Attack() {
     if (this.NearestEnemy) {
-      Bullets.push(
+      Attacks.push(
         new Bullet(
           this.x + Center(this.size),
           this.y + Center(this.size),
@@ -523,7 +417,7 @@ class WizardTower extends Tower {
       let Enemy3 = Enemies[FirstEnemy + 2];
       if (this.TargetMode == "first") {
         if (Enemy2 != null) {
-          Lighting.push(
+          Attacks.push(
             new LightingBolt(
               Enemy2,
               this.x + Center(this.size),
@@ -539,7 +433,7 @@ class WizardTower extends Tower {
           }
         }
         if (Enemy3 != null) {
-          Lighting.push(
+          Attacks.push(
             new LightingBolt(
               Enemy3,
               this.x + Center(this.size),
@@ -555,7 +449,7 @@ class WizardTower extends Tower {
           }
         }
 
-        Lighting.push(
+        Attacks.push(
           new LightingBolt(
             this.NearestEnemy,
             this.x + Center(this.size),
