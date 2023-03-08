@@ -23,6 +23,7 @@ let Price = {
   MachinegunTower: 600,
   MissleLauncherTower: 1200,
   Drone: 1500,
+  Wizard: 600
 };
 
 let ButtonColor;
@@ -108,6 +109,16 @@ function PlaceDroneTower() {
   }
 }
 
+function PlaceWizardTower() {
+  if (GameMoney >= Price.Wizard && DisablePlacing == false) {
+    selectedTower = false;
+    DisablePlacing = true;
+    let NewTowerType = new WizardTower();
+    NewTowerType.PlaceTower();
+    NewTowerType.PushToList();
+  }
+}
+
 function DeselectTower() {
   selectedTower = false;
 }
@@ -117,6 +128,12 @@ function DeselectTower() {
 function preload() {
   HeartImageDirectory = loadImage("Images/Heart.png");
   MoneyStackDirectory = loadImage("Images/STACK.png");
+  
+  PauseButton = createButton("Pause");
+  PauseButton.style("background-color", "green");
+  PauseButton.position(455, 600);
+  PauseButton.size(95, 50);
+  PauseButton.mousePressed(PauseGame);
 
   UpgradeButton = createButton("Upgrade");
   UpgradeButton.style("background-color", "rgb(0,115,255)");
@@ -169,12 +186,12 @@ function preload() {
   DroneTowerButton.position(560, 130);
   DroneTowerButton.size(95, 50);
   DroneTowerButton.mousePressed(PlaceDroneTower);
-
-  PauseButton = createButton("Pause");
-  PauseButton.style("background-color", "green");
-  PauseButton.position(455, 600);
-  PauseButton.size(95, 50);
-  PauseButton.mousePressed(PauseGame);
+  
+  WizardTowerButton = createButton("($" + Price.Wizard + ") Wizard");
+  WizardTowerButton.style("background-color", "grey");
+  WizardTowerButton.position(690, 130);
+  WizardTowerButton.size(95, 50);
+  WizardTowerButton.mousePressed(PlaceWizardTower);
 }
 
 // Function to draw all game images to the screen
@@ -225,6 +242,11 @@ function CreateShop() {
   if (GameMoney >= Price.Drone) {
     DroneTowerButton.style("background-color", "green");
   }
+  
+    if (GameMoney >= Price.Wizard) {
+    WizardTowerButton.style("background-color", "purple");
+  }
+  
 
   //Upgrade area
   line(550, 400, Xmax + ShopSize, 400);
