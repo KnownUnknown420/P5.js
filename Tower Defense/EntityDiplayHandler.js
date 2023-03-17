@@ -8,9 +8,9 @@ let Enemies = [];
 let PlacedTowers = [];
 
 //This first Function will lopp throught all the Towers inside the PlacedTowers Array
-//It will also show the Range of the selectedTower
+//It will also show the Range of the SelectedTower
 //Along with this, it checks to see if the mouse is pressed
-//If its not on the selected tower, it deselets the selectedTower,
+//If its not on the selected tower, it deselets the SelectedTower,
 //After all of this, it wil run the PlacedTowers Methods
 //Firstly, it will loop throught any towers that are getting placed
 //It wil then run the TowerPlacing code
@@ -18,11 +18,11 @@ let PlacedTowers = [];
 //Along with checking to see if the mouse is pressed and inside of it.
 //If the game is not paused, it will target and attack any enemies inside its range
 function ShowTowers() {
-  if (selectedTower) {
-    selectedTower.showRange();
+  if (SelectedTower) {
+    SelectedTower.showRange();
   }
   if (mouseIsPressed && mouseButton === LEFT && mouseX <= 550) {
-    selectedTower = false;
+    SelectedTower = false;
   }
   for (let i = 0; i < PlacedTowers.length; i++) {
     if (PlacedTowers[i].TowerPlaced == false) {
@@ -46,6 +46,7 @@ function ShowEnemies() {
     Enemies[i].show();
     Enemies[i].showHealth();
     if (GamePaused == false) {
+      Enemies[i].DebuffHandler()
       Enemies[i].move();
     }
   }
