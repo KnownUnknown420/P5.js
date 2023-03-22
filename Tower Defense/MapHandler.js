@@ -1,3 +1,6 @@
+//This file contains all the map drawling code
+//Map data has the setup data, such as color and the start of the map
+//Ill make a map editor eventually to help with this process
 let MapData = [
   0,
   255,
@@ -9,6 +12,10 @@ let MapData = [
   0, // Start Point 6,7
 ];
 
+//Track data contains the track that is drawn on the sreen
+//These are striclty for visual apperance
+//But also block towers from being placed on it
+//Do not effect enemy movement
 let TrackData = [
   375,
   0,
@@ -40,7 +47,9 @@ let TrackData = [
   150,
 ];
 
-//points that the enemies have to follow
+//This contains all the points the enemys move too
+//These are manualy done to be more dynamic
+//And allow complete controll over map objects
 let PathPoints = [
   385,
   110,
@@ -58,7 +67,7 @@ let PathPoints = [
   600,
 ];
 
-// Draws the track onto the screen
+//This is just an easy way of drawling the track onto the screen
 function DrawTrack() {
   for (let i = 0; i < TrackData.length; i += 4) {
     rect(TrackData[i], TrackData[i + 1], TrackData[i + 2], TrackData[i + 3]);
