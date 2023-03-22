@@ -5,13 +5,7 @@
 //Bullet class is created
 class Bullet {
   //It is constructed with:
-  //StartX, the bullets starting position on the X axis
-  //StartY, the bullets starting position on the Y axis
-  //targetX, the bullets end goal on the Y axis
-  //targetY the bullets end goal on the X axis
-  //speed, the speed the Bullet travels at
-  //It is constructed with:
-  constructor(startX, startY, targetX, targetY, speed) { 
+  constructor(startX, startY, targetX, targetY, speed) {
     this.X = startX;
     this.Y = startY;
     this.Speed = speed;
@@ -78,6 +72,7 @@ class LightingBolt extends Bullet {
   //otherwise, reachedTarget is changed to true,
   display() {
     if (this.Counter <= 10) {
+      strokeWeight(3);
       line(
         this.X,
         this.Y,
