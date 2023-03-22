@@ -23,7 +23,9 @@ function SpawnEnemiesInEnemyMakerInstances() {
 
 //This is just a more readble and user friendly way of Making a EnemyMaker Instance
 function CreateEnemies(Type, Amount, Delay, Debounce, Health, Speed) {
-  EnemyMakerInstances.push(new EnemyMaker(Type, Amount, Delay, Debounce, Health, Speed));
+  EnemyMakerInstances.push(
+    new EnemyMaker(Type, Amount, Delay, Debounce, Health, Speed)
+  );
 }
 
 //This is a cool soultion I thought of during english
@@ -32,12 +34,6 @@ function CreateEnemies(Type, Amount, Delay, Debounce, Health, Speed) {
 //And Allows changes in health and speed on the fly
 class EnemyMaker {
   //The Constrctor Method Contains Multiple Diffrent paramartiers:
-  //Type: Sets the enemy type
-  //Amount: Sets the Amount of enemies to be spawned
-  //Delay: Sets the time to wait before spawning enemies
-  //Debounce: Sets the delay between each enemy spawn
-  //Health and Speed are both used to create the enemy
-  //DelayCheck is used to make sure the DelayAmount has been waited for
   constructor(Type, Amount, Delay, Debounce, Health, Speed) {
     this.Type = Type;
     this.Amount = Amount;
@@ -48,8 +44,9 @@ class EnemyMaker {
     this.Count = 0;
     this.Timer = 0;
     this.DelayCheck = false;
+    this.OneEnemyCheck = false
   }
-  
+
   //SpawnEnemies() Method is used to create and add the Enemies to the Enemies array
   //First we need to increment the timer, this acts as a clock for this Object
   //Next we check if the Delay has been waited for
@@ -62,22 +59,22 @@ class EnemyMaker {
   //We then delete this object from the EnemyMakerInstances Array
   SpawnEnemies() {
     this.Timer++;
-    
-    if (this.DelayCheck == false && this.Timer == this.Delay){
-      this.DelayCheck = true
+
+    if (this.DelayCheck == false && this.Timer >= this.Delay) {
+      this.DelayCheck = true;
     }
-    
+
     let index = EnemyMakerInstances.indexOf(this);
     if (this.Amount <= 0 || this.Amount == null) {
       console.log("Warning: No wave Amount defined");
       EnemyMakerInstances.splice(index, 1);
     }
-    if (this.Amount == 1) {
+    if (this.Amount == 1 && this.DelayCheck == true) {
       let enemy = new this.Type(this.Health, this.Speed);
       Enemies.push(enemy);
       EnemyMakerInstances.splice(index, 1);
     }
-    
+
     if (this.Timer >= this.Debounce && this.DelayCheck == true) {
       let enemy = new this.Type(this.Health, this.Speed);
       Enemies.push(enemy);
