@@ -31,6 +31,7 @@ let HealthText;
 let MoneyText;
 let BasicTowerPrice;
 let FPS;
+let WaveText;
 
 // Variables to store image directory and image objects
 let HeartImageDirectory;
@@ -44,9 +45,12 @@ let SellTowerButton;
 let DeselectButton;
 let PauseButton;
 
+let FirstTargetButton;
+let LastTargetButton;
+
 //Price for the shop
 let Price = {
-  BasicTower: 200,
+  BasicTower: 150,
   SniperTower: 350,
   MachinegunTower: 600,
   MissleLauncherTower: 1200,
@@ -128,6 +132,7 @@ function PlaceStandardTower() {
     let NewTowerType = new BasicTower();
     NewTowerType.PlaceTower();
     NewTowerType.PushToList();
+    SelectedTower = NewTowerType;
   }
 }
 
@@ -138,6 +143,7 @@ function PlaceSniperTower() {
     let NewTowerType = new SniperTower();
     NewTowerType.PlaceTower();
     NewTowerType.PushToList();
+    SelectedTower = NewTowerType;
   }
 }
 
@@ -148,6 +154,7 @@ function PlaceMGTower() {
     let NewTowerType = new MachinegunTower();
     NewTowerType.PlaceTower();
     NewTowerType.PushToList();
+    SelectedTower = NewTowerType;
   }
 }
 
@@ -158,6 +165,7 @@ function PlaceMissleTower() {
     let NewTowerType = new MissleTower();
     NewTowerType.PlaceTower();
     NewTowerType.PushToList();
+    SelectedTower = NewTowerType;
   }
 }
 
@@ -168,6 +176,7 @@ function PlaceDroneTower() {
     let NewTowerType = new DroneTower();
     NewTowerType.PlaceTower();
     NewTowerType.PushToList();
+    SelectedTower = NewTowerType;
   }
 }
 
@@ -178,6 +187,7 @@ function PlaceWizardTower() {
     let NewTowerType = new WizardTower();
     NewTowerType.PlaceTower();
     NewTowerType.PushToList();
+    SelectedTower = NewTowerType;
   }
 }
 
@@ -188,6 +198,7 @@ function PlaceFreezeTower() {
     let NewTowerType = new FreezeTower();
     NewTowerType.PlaceTower();
     NewTowerType.PushToList();
+    SelectedTower = NewTowerType;
   }
 }
 
@@ -198,6 +209,7 @@ function PlaceNinjaTower() {
     let NewTowerType = new NinjaTower();
     NewTowerType.PlaceTower();
     NewTowerType.PushToList();
+    SelectedTower = NewTowerType;
   }
 }
 
@@ -208,6 +220,7 @@ function PlaceDamageTower() {
     let NewTowerType = new DamageTower();
     NewTowerType.PlaceTower();
     NewTowerType.PushToList();
+    SelectedTower = NewTowerType;
   }
 }
 
@@ -218,6 +231,7 @@ function PlaceRadarTower() {
     let NewTowerType = new RadarTower();
     NewTowerType.PlaceTower();
     NewTowerType.PushToList();
+    SelectedTower = NewTowerType;
   }
 }
 
@@ -228,12 +242,31 @@ function PlaceAntiTankTower() {
     let NewTowerType = new AntiTankTower();
     NewTowerType.PlaceTower();
     NewTowerType.PushToList();
+    SelectedTower = NewTowerType;
   }
 }
 
 //OMG FOR A SINGLE VAR
 function DeselectTower() {
-  SelectedTower = false;
+  if (SelectedTower.TowerPlaced == true) {
+    SelectedTower = false;
+  } else {
+    let index = PlacedTowers.indexOf(SelectedTower);
+    PlacedTowers.splice(index, 1);
+    SelectedTower = false;
+    DisablePlacing = false;
+  }
+}
+
+function ChangeTargetMode() {
+  console.log(SelectedTower.TargetMode);
+  if (SelectedTower) {
+    if (SelectedTower.TargetMode == "first") {
+      SelectedTower.TargetMode = "last";
+    } else {
+      SelectedTower.TargetMode = "first";
+    }
+  }
 }
 
 //Preload function to load images only once
@@ -244,8 +277,20 @@ function preload() {
   HeartImageDirectory = loadImage("Images/Heart.png");
   MoneyStackDirectory = loadImage("Images/STACK.png");
 
+  FirstTargetButton = createButton("F");
+  FirstTargetButton.style("background-color", "red");
+  FirstTargetButton.position(655, 545);
+  FirstTargetButton.size(40, 50);
+  FirstTargetButton.mousePressed(ChangeTargetMode);
+
+  LastTargetButton = createButton("L");
+  LastTargetButton.style("background-color", "red");
+  LastTargetButton.position(655, 545);
+  LastTargetButton.size(40, 50);
+  LastTargetButton.mousePressed(ChangeTargetMode);
+
   PauseButton = createButton("Pause");
-  PauseButton.style("background-color", "green");
+  PauseButton.style("background-color", "red");
   PauseButton.position(455, 600);
   PauseButton.size(95, 50);
   PauseButton.mousePressed(PauseGame);
@@ -350,9 +395,10 @@ function DrawGameImages() {
 // Function to draw all game text to the screen
 function DrawGameText() {
   HealthText = text(GameHealth, 50, 30);
-  MoneyText = text(GameMoney, 135, 30);
+  MoneyText = text(floor(GameMoney), 135, 30);
   let FPSAmount = ceil(frameRate() / 5) * 5;
-  FPS = text(FPSAmount, 520, 30);
+  FPS = text(FPSAmount, 520,20);
+  WaveText = text("Wave: " + WaveCount, 565, 385);
 }
 
 // Function to reset the button colors
@@ -368,6 +414,8 @@ function ResetColors() {
   FreezeTowerButton.style("background-color", "grey");
   NinjaTowerButton.style("background-color", "grey");
   AntiTankTowerButton.style("background-color", "grey");
+  DamageTowerButton.style("background-color", "grey");
+  RadarTowerButton.style("background-color", "grey");
 }
 
 //THIS IS THE WORST THING IN THE ENTIRE FILE
@@ -427,16 +475,35 @@ function CreateShop() {
   if (SelectedTower === false) {
     UpgradeButton.hide();
     SellButton.hide();
-    DeselectButton.hide();
   } else {
-    UpgradeButton.style("display", "block");
-    SellButton.style("display", "block");
-    DeselectButton.style("display", "block");
+    if (SelectedTower.TowerPlaced == true) {
+      UpgradeButton.style("display", "block");
+      SellButton.style("display", "block");
+      DeselectButton.style("display", "block");
 
-    if (SelectedTower.Level > 3) {
-      UpgradeButton.hide();
+      if (SelectedTower.Level > 3) {
+        UpgradeButton.hide();
+      }
+      fill(0, 0, 0);
+      RefreshText();
     }
-    fill(0, 0, 0);
-    RefreshText();
+  }
+  if (SelectedTower) {
+    DeselectButton.style("display", "block");
+  } else {
+    DeselectButton.hide();
+  }
+  if (SelectedTower && SelectedTower.TowerPlaced == true) {
+    if (SelectedTower.TargetMode == "last") {
+      FirstTargetButton.hide();
+      LastTargetButton.style("display", "block");
+    }
+    if (SelectedTower.TargetMode == "first") {
+      FirstTargetButton.style("display", "block");
+      LastTargetButton.hide();
+    }
+  } else {
+    LastTargetButton.hide();
+    FirstTargetButton.hide();
   }
 }
