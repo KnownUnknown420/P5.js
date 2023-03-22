@@ -206,7 +206,7 @@ class Tower {
       this.NearestDistance = 0;
       this.NearestEnemy.Health -= this.Damage * this.DamageModifer;
       if (this.NearestEnemy.Health <= 0) {
-        GameMoney += this.NearestEnemy.OrginalHealth;
+        GameMoney += (this.NearestEnemy.OrginalHealth / 2);
         let index = Enemies.indexOf(this.NearestEnemy);
         Enemies.splice(index, 1);
         this.KillCount++;
@@ -230,26 +230,13 @@ class BasicTower extends Tower {
     this.Name = "Soilder";
     this.Size = 30;
     this.Damage = 1.0;
-    this.TowerPrice = 200;
-    this.Radius = 100;
+    this.TowerPrice = 150;
+    this.Radius = 120;
     this.ColorG = 150;
     this.SellPrice = 175;
-    this.AttackSpeed = 1;
+    this.AttackSpeed = 0.65;
     this.EffectiveDamage = ["none"];
-    this.Upgrade = [
-      1.0,
-      0.7,
-      120,
-      200,
-      2.0,
-      0.5,
-      150,
-      600,
-      2.5,
-      0.2,
-      175,
-      1000,
-    ];
+    this.Upgrade = [1.5, 0.5, 150, 50, 2.0, 0.2, 175, 150, 2.5, 0.05, 200, 300];
   }
   Show() {
     fill(this.ColorR, this.ColorG, this.ColorB);
@@ -417,7 +404,7 @@ class DroneTower extends Tower {
         this.AttackDelay = 0;
         Enemies[0].Health -= this.Damage * this.DamageModifer;
         if (Enemies[0].Health <= 0) {
-          GameMoney += Enemies[0].OrginalHealth;
+          GameMoney += (Enemies[0].OrginalHealth / 2);
           let index = Enemies.indexOf(Enemies[0]);
           Enemies.splice(index, 1);
           this.KillCount++;
@@ -488,7 +475,7 @@ class WizardTower extends Tower {
           LastEnemy = Enemy2;
           Enemy2.Health -= this.Damage * this.DamageModifer;
           if (Enemy2.Health <= 0) {
-            GameMoney += Enemy2.OrginalHealth;
+            GameMoney += Enemy2.OrginalHealth / 2;
             let index = Enemies.indexOf(Enemy2);
             Enemies.splice(index, 1);
             this.KillCount++;
@@ -505,7 +492,7 @@ class WizardTower extends Tower {
           LastEnemy = Enemy3;
           Enemy3.Health -= this.Damage * this.DamageModifer;
           if (Enemy3.Health <= 0) {
-            GameMoney += Enemy3.OrginalHealth;
+            GameMoney += Enemy3.OrginalHealth / 2;
             let index = Enemies.indexOf(Enemy3);
             Enemies.splice(index, 1);
             this.KillCount++;
@@ -523,7 +510,7 @@ class WizardTower extends Tower {
           LastEnemy = Enemy4;
           Enemy4.Health -= this.Damage * this.DamageModifer;
           if (Enemy4.Health <= 0) {
-            GameMoney += Enemy4.OrginalHealth;
+            GameMoney += Enemy4.OrginalHealth / 2;
             let index = Enemies.indexOf(Enemy4);
             Enemies.splice(index, 1);
             this.KillCount++;
@@ -539,7 +526,7 @@ class WizardTower extends Tower {
         );
         this.NearestEnemy.Health -= this.Damage * this.DamageModifer;
         if (this.NearestEnemy.Health <= 0) {
-          GameMoney += this.NearestEnemy.OrginalHealth;
+          GameMoney += this.NearestEnemy.OrginalHealth / 2;
           let index = Enemies.indexOf(this.NearestEnemy);
           Enemies.splice(index, 1);
           this.KillCount++;
@@ -658,10 +645,10 @@ class NinjaTower extends Tower {
     this.Size = 30;
     this.Damage = 1;
     this.TowerPrice = 600;
-    this.Radius = 50;
+    this.Radius = 150;
     this.SellPrice = 300;
     this.AttackSpeed = 0.3;
-    this.Upgrade = [2, 0.1, 150, 700, 3, 0.05, 200, 1000, 4, 0.03, 250, 2000];
+    this.Upgrade = [2, 0.1, 170, 700, 3, 0.05, 200, 1000, 4, 0.03, 250, 2000];
     this.EffectiveDamage = ["camo"];
   }
 
@@ -685,7 +672,7 @@ class NinjaTower extends Tower {
           );
           Enemy2.Health -= this.Damage * this.DamageModifer;
           if (Enemy2.Health <= 0) {
-            GameMoney += Enemy2.OrginalHealth;
+            GameMoney += Enemy2.OrginalHealth / 2;
             let index = Enemies.indexOf(Enemy2);
             Enemies.splice(index, 1);
             this.KillCount++;
@@ -703,7 +690,7 @@ class NinjaTower extends Tower {
           );
           Enemy3.Health -= this.Damage * this.DamageModifer;
           if (Enemy3.Health <= 0) {
-            GameMoney += Enemy3.OrginalHealth;
+            GameMoney += Enemy3.OrginalHealth / 2;
             let index = Enemies.indexOf(Enemy3);
             Enemies.splice(index, 1);
             this.KillCount++;
@@ -720,7 +707,7 @@ class NinjaTower extends Tower {
         );
         this.NearestEnemy.Health -= this.Damage * this.DamageModifer;
         if (this.NearestEnemy.Health <= 0) {
-          GameMoney += this.NearestEnemy.OrginalHealth;
+          GameMoney += this.NearestEnemy.OrginalHealth / 2;
           let index = Enemies.indexOf(this.NearestEnemy);
           Enemies.splice(index, 1);
           this.NearestEnemy = null;
@@ -856,7 +843,7 @@ class RadarTower extends Tower {
     this.Name = "Radar";
     this.Type = "Booster";
     this.ColorR = 100;
-    this.ColorG = 30;
+    this.ColorG = 130;
     this.ColorB = 0;
     this.EnemySize = 0;
     this.Size = 30;
@@ -944,7 +931,7 @@ class AntiTankTower extends Tower {
     this.Name = "AntiTank";
     this.Type = "Booster";
     this.ColorR = 100;
-    this.ColorG = 30;
+    this.ColorG = 100;
     this.ColorB = 0;
     this.EnemySize = 0;
     this.Size = 30;
@@ -1025,4 +1012,3 @@ class AntiTankTower extends Tower {
     );
   }
 }
-
