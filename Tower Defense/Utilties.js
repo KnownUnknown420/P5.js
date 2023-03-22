@@ -1,16 +1,26 @@
-function CheckSpecialType(DamageType, Enemy) {
+//This file contains UniversalFunctions that dont really
+//Belong anywhere so they are specia I guess
+
+function CheckSpecialType(TowerPass, Enemy) {
   let ReturnValue = true;
-  if (DamageType.includes("none") && Enemy.includes("none")) {
+  let Tower = TowerPass;
+  if (Tower.EffectiveDamage.includes("none") && Enemy.includes("none")) {
     return true;
   }
   if (Enemy.includes("camo")) {
-    if (DamageType.includes("camo") == false) {
+    if (
+      Tower.EffectiveDamage.includes("camo") == false &&
+      Tower.BoostedEffectiveDamage.includes("camo") == false
+    ) {
       ReturnValue = false;
     }
   }
 
   if (Enemy.includes("tank")) {
-    if (DamageType.includes("tank") == false) {
+    if (
+      Tower.EffectiveDamage.includes("tank") == false &&
+      Tower.BoostedEffectiveDamage.includes("tank") == false
+    ) {
       ReturnValue = false;
     }
   }
@@ -27,11 +37,15 @@ function PauseGame() {
   }
 }
 
-function Center(size){
-  return size/2
+//Yea this was dumb, but it was easier soooo
+//Work smarter not harder
+//I could have just delcared a ceneter variable :skull:
+function Center(size) {
+  return size / 2;
 }
 
-function checkRectIntersection(rect1, rect2) {
+//This is needed mutliple times
+function CheckRectIntersection(rect1, rect2) {
   if (
     rect1.x < rect2.x + rect2.w &&
     rect1.x + rect1.w > rect2.x &&
