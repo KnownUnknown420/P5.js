@@ -9,32 +9,18 @@ let SpawnCheck = false;
 //This is the main enemy class
 class Enemy {
   //This is the defualt settings for the enemy
-  //It is constructed with multiple instance feilds
-  //h: Height of the enemy square
-  //x: X-coordinate of the enemy
-  //y: Y-coordinate of the enemy
-  //speed: Speed of the enemy
-  //pathPoints: Path that the enemy has to follow, inside the MapHandler file
-  //currentPoint Current point on the path that the enemy is at
-  //Health: Health of the enemy
-  //OrginalHealth : Orginal health of the enemy, used for money and healthbar stuff
-  //SpecialType, Used to tell if the enemy has any special effectss
-  //Blimp: Used to make the tower a blimp, which has a diffrent visual apperance
-  //Turning: Used to tell if a Blimp type enemy is turning
-  //Colors R G B: Used to change the color of the enemy
-  //Done this way instead of a color() object beacuse its easier to draw with 3 diffrent values
-  //RainbowColor: Used for special color effects on the enemy
-  //RainbowCheck: Used to see if the effect are applied or not
   constructor() {
     this.H = 30;
     this.X = MapData[6] - Center(this.H);
     this.Y = MapData[7] - this.H;
     this.Speed = 30;
-    PathPoints = PathPoints;
+    this.ActualSpeed = this.Speed;
     this.CurrentPoint = 0;
     this.Health = 1;
     this.OrginalHealth = this.Health;
     this.SpecialType = ["none"];
+    this.CanRegen = false;
+    this.RegenCounter = 0;
     this.Blimp = false;
     this.Turning = false;
     this.ColorR = 255;
@@ -42,6 +28,9 @@ class Enemy {
     this.ColorG = 255;
     this.RainbowColor = 0;
     this.RainbowCheck = false;
+    this.FrozenAmount = 0;
+    this.FrozenClock = 10;
+    this.Frozen = false;
   }
 
   //Moves the enemy along the path
@@ -52,15 +41,18 @@ class Enemy {
   //Repeat this untill there are no path points
   //Remove health from the game health based on the towers health
   move() {
-    //Coordinates of the target point on the path
+    if (this.ActualSpeed <= 3) {
+      this.ActualSpeed = 3;
+    }
+
     let TargetX = PathPoints[this.CurrentPoint * 2];
     let TargetY = PathPoints[this.CurrentPoint * 2 + 1];
     let DX = TargetX - this.X;
     let DY = TargetY - this.Y;
     let Distance = sqrt(DX * DX + DY * DY);
 
-    this.X += (DX * this.Speed) / (Distance * 10);
-    this.Y += (DY * this.Speed) / (Distance * 10);
+    this.X += (DX * this.ActualSpeed) / (Distance * 10);
+    this.Y += (DY * this.ActualSpeed) / (Distance * 10);
 
     if (floor(Distance) <= 1 + this.Speed / 5) {
       this.X = TargetX;
@@ -121,7 +113,15 @@ class Enemy {
         ellipse(this.X + Center(this.H), this.Y + Center(this.H), 50, 80);
       }
     } else {
-      square(this.X, this.Y, this.H);
+      if (this.CanRegen == true) {
+        square(this.X, this.Y, this.H);
+      } else
+        ellipse(
+          this.X + Center(this.H),
+          this.Y + Center(this.H),
+          this.H,
+          this.H
+        );
     }
   }
 
@@ -143,6 +143,44 @@ class Enemy {
         (this.Health / this.OrginalHealth) * (this.H + 26),
         5
       );
+    }
+  }
+
+  //This method will loop throught all debuffs and do things to the enemy
+  //Like freeze or poison
+  //its a dumb way of doing it but I just want it to work at this point
+  DebuffHandler() {
+    this.ActualSpeed = this.Speed;
+    if (this.Frozen == true) {
+      this.FrozenClock++;
+      this.ActualSpeed = this.Speed / 2;
+      if (this.FrozenClock >= this.FrozenAmount) {
+        this.FrozenClock = 0;
+        this.Frozen = false;
+      }
+    }
+  }
+
+  RegenHandler() {
+    if (this.CanRegen == true) {
+      this.RegenCounter++;
+      console.log("Counter");
+      if (this.RegenCounter == 100) {
+        if (this.Health < this.OrginalHealth) {
+          console.log("Starting: ");
+          if (this.OrginalHealth <= 5) {
+            console.log("working");
+            this.Health += this.OrginalHealth / 2;
+            console.log("worked");
+          } else {
+            this.Health += this.OrginalHealth / 4;
+          }
+        }
+        this.RegenCounter = 0;
+        if (this.Health > this.OrginalHealth) {
+          this.Health = this.OrginalHealth;
+        }
+      }
     }
   }
 }
@@ -199,5 +237,48 @@ class Blimp extends Enemy {
     this.OrginalHealth = Health;
     this.Speed = Speed;
     this.Blimp = true;
+  }
+}
+
+//Enemies that can regen
+class Regen extends Enemy {
+  constructor(Health, Speed) {
+    super();
+    this.Health = Health;
+    this.OrginalHealth = Health;
+    this.Speed = Speed;
+    this.CanRegen = true;
+  }
+}
+
+class RegenCamo extends Enemy {
+  constructor(Health, Speed) {
+    super();
+    this.Health = Health;
+    this.OrginalHealth = Health;
+    this.Speed = Speed;
+    this.SpecialType = ["camo"];
+    this.CanRegen = true;
+  }
+}
+
+class RegenTank extends Enemy {
+  constructor(Health, Speed) {
+    super();
+    this.Health = Health;
+    this.OrginalHealth = Health;
+    this.Speed = Speed;
+    this.SpecialType = ["tank"];
+    this.CanRegen = true;
+  }
+}
+class RegenCamoTank extends Enemy {
+  constructor(Health, Speed) {
+    super();
+    this.Health = Health;
+    this.OrginalHealth = Health;
+    this.Speed = Speed;
+    this.SpecialType = ["camo", "tank"];
+    this.CanRegen = true;
   }
 }
