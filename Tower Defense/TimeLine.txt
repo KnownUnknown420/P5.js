@@ -35,6 +35,9 @@ March 10: Added Ninja tower WEEEEEEEEE
 
 March 20: Alot has changed. Kinda forgot to do this. Firstly I wen back and added 3 new "booster"   towers. these towers boost the damage, and detection of each tower in its range. I thought         attack speed would be to stupid because the towers can stack. that will be fun :). I also added    the wave system. Its not as complicated as I thought. So yea its pretty cool. More doc is added   on the page itself. I also went back and optimized the spawning code, along with the tower code.   Cacheing was  thing I added so I dont have to look for tower position every time the screen       updated. thank you goolge. Im going to now work on adding balancing and waves. Something im       sacred of doing. 
 
+April 4: Forgot that I had to do this. Added a menu, fully functionl. Going to have my friend make me a background screen. I also added a new map, changed code, balanced towers, fixed the wave system. The new map should be easier.
+For the future, im going to add some new maps, along with a map completion system with stars. Hopefully Im going to add a leveling system.
+
 
 
 
