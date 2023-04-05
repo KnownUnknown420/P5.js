@@ -46,10 +46,10 @@ function ShowEnemies() {
     Enemies[i].show();
     Enemies[i].showHealth();
     if (GamePaused == false) {
-      Enemies[i].DebuffHandler()
+      Enemies[i].DebuffHandler();
       Enemies[i].move();
-      if (Enemies[i] && Enemies[i].Health <= 0 && Enemies[i].CanRegen == true){
-        Enemies[i].RegenHandler()
+      if (Enemies[i] && Enemies[i].Health <= 0 && Enemies[i].CanRegen == true) {
+        Enemies[i].RegenHandler();
       }
     }
   }
