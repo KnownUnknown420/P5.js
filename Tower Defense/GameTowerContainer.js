@@ -13,7 +13,7 @@ class Tower {
   constructor() {
     this.Type = "Tower";
     this.Name = "Tower";
-    this.Size = 1;
+    this. Size = 1;
     this.DamageModifer = 1;
     this.Damage = 1;
     this.ColorR = 0;
