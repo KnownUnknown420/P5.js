@@ -114,7 +114,7 @@ class Enemy {
       }
     } else {
       if (this.CanRegen == true) {
-        square(this.X, this.Y, this.H);
+        heart(this.X + Center(this.H), this.Y, this.H);
       } else
         ellipse(
           this.X + Center(this.H),
@@ -164,14 +164,10 @@ class Enemy {
   RegenHandler() {
     if (this.CanRegen == true) {
       this.RegenCounter++;
-      console.log("Counter");
       if (this.RegenCounter == 100) {
         if (this.Health < this.OrginalHealth) {
-          console.log("Starting: ");
           if (this.OrginalHealth <= 5) {
-            console.log("working");
             this.Health += this.OrginalHealth / 2;
-            console.log("worked");
           } else {
             this.Health += this.OrginalHealth / 4;
           }
@@ -191,7 +187,7 @@ class Enemy {
 //Combining Special types is allowed
 //Health and Speed are passed in throught the enemy spawning functions
 //I wanted to be able to controll the health and speed
-class Soilder extends Enemy {
+class Soldier extends Enemy {
   constructor(Health, Speed) {
     super();
     this.Health = Health;
@@ -282,3 +278,4 @@ class RegenCamoTank extends Enemy {
     this.CanRegen = true;
   }
 }
+
