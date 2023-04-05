@@ -30,7 +30,7 @@ class Bullet {
 
       //If the bullet has reached its target:
       if (Distance < this.Speed) {
-        this.ReachedTarget = true; //Saying the bullet as reached its target
+        this.ReachedTarget = true; //Saying the bullet as reached its targeta
       }
     }
   }
