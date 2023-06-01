@@ -13,7 +13,7 @@ class Tower {
   constructor() {
     this.Type = "Tower";
     this.Name = "Tower";
-    this. Size = 1;
+    this.Size = 1;
     this.DamageModifer = 1;
     this.Damage = 1;
     this.ColorR = 0;
@@ -163,8 +163,8 @@ class Tower {
       for (let i = 0; i < Enemies.length; i++) {
         let IndexOfEnemy = Enemies[i];
         distance = dist(
-          this.X,
-          this.Y,
+          this.X + Center(this.Size),
+          this.Y + Center(this.Size),
           IndexOfEnemy.X + IndexOfEnemy.H / 2,
           IndexOfEnemy.Y + IndexOfEnemy.H / 2
         );
@@ -206,10 +206,13 @@ class Tower {
       this.NearestDistance = 0;
       this.NearestEnemy.Health -= this.Damage * this.DamageModifer;
       if (this.NearestEnemy.Health <= 0) {
-        GameMoney += (this.NearestEnemy.OrginalHealth / 2);
+        GameMoney += SetMoney(this.NearestEnemy.OrginalHealth);
+
         let index = Enemies.indexOf(this.NearestEnemy);
         Enemies.splice(index, 1);
         this.KillCount++;
+        DataBase.DataPushKill();
+        PlayKillSound();
       }
       this.NearestEnemy = null;
     }
@@ -236,7 +239,7 @@ class BasicTower extends Tower {
     this.SellPrice = 175;
     this.AttackSpeed = 0.65;
     this.EffectiveDamage = ["none"];
-    this.Upgrade = [1.5, 0.5, 150, 50, 2.0, 0.2, 175, 150, 2.5, 0.05, 200, 300];
+    this.Upgrade = [2, 0.5, 150, 50, 3, 0.2, 175, 150, 4, 0.07, 200, 300];
   }
   Show() {
     fill(this.ColorR, this.ColorG, this.ColorB);
@@ -245,7 +248,7 @@ class BasicTower extends Tower {
     fill(255, 255, 255);
     text(
       this.Level,
-      this.X + Center(this.Size) - 6,
+      this.X + Center(this.Size) - 4,
       this.Y + Center(this.Size) + 6
     );
   }
@@ -263,7 +266,7 @@ class SniperTower extends Tower {
     this.SellPrice = 175;
     this.AttackSpeed = 1.7;
     this.EffectiveDamage = ["tank"];
-    this.Upgrade = [6, 1.3, 300, 600, 8, 0.5, 350, 1200, 10, 0.1, 400, 3000];
+    this.Upgrade = [6, 1.3, 300, 600, 12, 0.5, 350, 1200, 18, 0.1, 400, 3000];
   }
   Show() {
     fill(this.ColorR, this.ColorG, this.ColorB);
@@ -285,7 +288,7 @@ class SniperTower extends Tower {
     fill(255, 255, 255);
     text(
       this.Level,
-      this.X + Center(this.Size) - 6,
+      this.X + Center(this.Size) - 4,
       this.Y + Center(this.Size) + 6
     );
   }
@@ -307,15 +310,15 @@ class MachinegunTower extends Tower {
       0.3,
       0.1,
       200,
-      300,
+      400,
       0.5,
       0.05,
       250,
-      600,
+      1000,
       1,
       0.01,
       300,
-      1000,
+      3600,
     ];
   }
   Show() {
@@ -325,7 +328,7 @@ class MachinegunTower extends Tower {
     fill(255, 255, 255);
     text(
       this.Level,
-      this.X + Center(this.Size) - 6,
+      this.X + Center(this.Size) - 4,
       this.Y + Center(this.Size) + 6
     );
   }
@@ -342,7 +345,7 @@ class MissleTower extends Tower {
     this.SellPrice = 200;
     this.AttackSpeed = 2;
     this.EffectiveDamage = ["tank"];
-    this.Upgrade = [5, 1.5, 200, 600, 10, 1, 250, 600, 15, 0.5, 300, 1000];
+    this.Upgrade = [8, 1.5, 200, 600, 12, 1, 250, 600, 25, 0.5, 300, 1000];
   }
   Show() {
     fill(this.ColorR, this.ColorG, this.ColorB);
@@ -351,7 +354,7 @@ class MissleTower extends Tower {
     fill(255, 255, 255);
     text(
       this.Level,
-      this.X + Center(this.Size) - 6,
+      this.X + Center(this.Size) - 4,
       this.Y + Center(this.Size) + 6
     );
   }
@@ -404,10 +407,12 @@ class DroneTower extends Tower {
         this.AttackDelay = 0;
         Enemies[0].Health -= this.Damage * this.DamageModifer;
         if (Enemies[0].Health <= 0) {
-          GameMoney += (Enemies[0].OrginalHealth / 2);
+          GameMoney += Enemies[0].OrginalHealth / 2;
           let index = Enemies.indexOf(Enemies[0]);
           Enemies.splice(index, 1);
           this.KillCount++;
+          DataBase.DataPushKill();
+          PlayKillSound();
         }
       }
     }
@@ -420,7 +425,7 @@ class DroneTower extends Tower {
     fill(255, 255, 255);
     text(
       this.Level,
-      this.X + Center(this.Size) - 6,
+      this.X + Center(this.Size) - 4,
       this.Y + Center(this.Size) + 6
     );
     fill(255, 255, 0);
@@ -441,8 +446,8 @@ class WizardTower extends Tower {
     this.Radius = 150;
     this.SellPrice = 1200;
     this.AttackSpeed = 0.9;
-    this.Upgrade = [1.5, 0.7, 150, 400, 3, 0.5, 200, 700, 5, 0.3, 250, 900];
-    this.EffectiveDamage = ["camo"];
+    this.Upgrade = [1.5, 0.7, 150, 400, 3, 0.5, 200, 700, 5, 0.1, 250, 900];
+    this.EffectiveDamage = ["tank"];
     this.Timer = 0;
   }
 
@@ -459,14 +464,14 @@ class WizardTower extends Tower {
       if (this.TargetMode == "first") {
         if (Enemy2 != null) {
           Attacks.push(
-            new LightingBolt(
+            new LightningBolt(
               this.NearestEnemy,
               Enemy2.X + Center(this.Size),
               Enemy2.Y + Center(this.Size)
             )
           );
           Attacks.push(
-            new LightingBolt(
+            new LightningBolt(
               FirstEnemy,
               LastEnemy.X + Center(this.Size),
               LastEnemy.Y + Center(this.Size)
@@ -479,11 +484,13 @@ class WizardTower extends Tower {
             let index = Enemies.indexOf(Enemy2);
             Enemies.splice(index, 1);
             this.KillCount++;
+            DataBase.DataPushKill();
+            PlayKillSound();
           }
         }
         if (this.Level >= 2 && Enemy3 != null) {
           Attacks.push(
-            new LightingBolt(
+            new LightningBolt(
               Enemy3,
               LastEnemy.X + Center(this.Size),
               LastEnemy.Y + Center(this.Size)
@@ -496,12 +503,14 @@ class WizardTower extends Tower {
             let index = Enemies.indexOf(Enemy3);
             Enemies.splice(index, 1);
             this.KillCount++;
+            DataBase.DataPushKill();
+            PlayKillSound();
           }
         }
 
         if (this.Level >= 4 && Enemy4 != null) {
           Attacks.push(
-            new LightingBolt(
+            new LightningBolt(
               Enemy4,
               LastEnemy.X + Center(this.Size),
               LastEnemy.Y + Center(this.Size)
@@ -514,11 +523,13 @@ class WizardTower extends Tower {
             let index = Enemies.indexOf(Enemy4);
             Enemies.splice(index, 1);
             this.KillCount++;
+            DataBase.DataPushKill();
+            PlayKillSound();
           }
-        }
+        }  
 
         Attacks.push(
-          new LightingBolt(
+          new LightningBolt(
             this.NearestEnemy,
             this.X + Center(this.Size),
             this.Y + Center(this.Size)
@@ -526,10 +537,12 @@ class WizardTower extends Tower {
         );
         this.NearestEnemy.Health -= this.Damage * this.DamageModifer;
         if (this.NearestEnemy.Health <= 0) {
-          GameMoney += this.NearestEnemy.OrginalHealth / 2;
+          GameMoney += SetMoney(this.NearestEnemy.OrginalHealth);
           let index = Enemies.indexOf(this.NearestEnemy);
           Enemies.splice(index, 1);
           this.KillCount++;
+          DataBase.DataPushKill();
+          PlayKillSound();
         }
         this.NearestEnemy = null;
       }
@@ -569,7 +582,7 @@ class WizardTower extends Tower {
     );
     text(
       this.Level,
-      this.X + Center(this.Size) - 6,
+      this.X + Center(this.Size) - 4,
       this.Y + Center(this.Size) + 6
     );
   }
@@ -605,8 +618,8 @@ class FreezeTower extends Tower {
       for (let i = 0; i < Enemies.length; i++) {
         let IndexOfEnemy = Enemies[i];
         distance = dist(
-          this.X,
-          this.Y,
+          this.X + Center(this.Size),
+          this.Y + Center(this.Size),
           IndexOfEnemy.X + IndexOfEnemy.H / 2,
           IndexOfEnemy.Y + IndexOfEnemy.H / 2
         );
@@ -629,7 +642,7 @@ class FreezeTower extends Tower {
     circle(this.CX + this.EnemySize, this.CY + this.EnemySize, 35);
     text(
       this.Level,
-      this.X + Center(this.Size) - 6,
+      this.X + Center(this.Size) - 4,
       this.Y + Center(this.Size) + 6
     );
   }
@@ -648,73 +661,8 @@ class NinjaTower extends Tower {
     this.Radius = 150;
     this.SellPrice = 300;
     this.AttackSpeed = 0.3;
-    this.Upgrade = [2, 0.1, 170, 700, 3, 0.05, 200, 1000, 4, 0.03, 250, 2000];
+    this.Upgrade = [3, 0.2, 170, 1000, 5, 0.07, 175, 2500, 7, 0.03, 175, 3600];
     this.EffectiveDamage = ["camo"];
-  }
-
-  Attack() {
-    if (this.NearestEnemy) {
-      let FirstEnemy = this.EnemiesInRange.indexOf(this.NearestEnemy);
-      let Enemy2 = null;
-      let Enemy3 = null;
-      Enemy2 = this.EnemiesInRange[FirstEnemy + 1];
-      Enemy3 = this.EnemiesInRange[FirstEnemy + 2];
-      if (this.TargetMode == "first") {
-        if (Enemy2 != null) {
-          Attacks.push(
-            new Bullet(
-              this.X + Center(this.Size),
-              this.Y + Center(this.Size),
-              Enemy2.X + Center(this.Size),
-              Enemy2.Y + Center(this.Size),
-              50
-            )
-          );
-          Enemy2.Health -= this.Damage * this.DamageModifer;
-          if (Enemy2.Health <= 0) {
-            GameMoney += Enemy2.OrginalHealth / 2;
-            let index = Enemies.indexOf(Enemy2);
-            Enemies.splice(index, 1);
-            this.KillCount++;
-          }
-        }
-        if (Enemy3 != null) {
-          Attacks.push(
-            new Bullet(
-              this.X + Center(this.Size),
-              this.Y + Center(this.Size),
-              Enemy3.X + Center(this.Size),
-              Enemy3.Y + Center(this.Size),
-              50
-            )
-          );
-          Enemy3.Health -= this.Damage * this.DamageModifer;
-          if (Enemy3.Health <= 0) {
-            GameMoney += Enemy3.OrginalHealth / 2;
-            let index = Enemies.indexOf(Enemy3);
-            Enemies.splice(index, 1);
-            this.KillCount++;
-          }
-        }
-        Attacks.push(
-          new Bullet(
-            this.X + Center(this.Size),
-            this.Y + Center(this.Size),
-            this.NearestEnemy.X + Center(this.Size),
-            this.NearestEnemy.Y + Center(this.Size),
-            50
-          )
-        );
-        this.NearestEnemy.Health -= this.Damage * this.DamageModifer;
-        if (this.NearestEnemy.Health <= 0) {
-          GameMoney += this.NearestEnemy.OrginalHealth / 2;
-          let index = Enemies.indexOf(this.NearestEnemy);
-          Enemies.splice(index, 1);
-          this.NearestEnemy = null;
-          this.KillCount++;
-        }
-      }
-    }
   }
 
   Show() {
@@ -724,7 +672,7 @@ class NinjaTower extends Tower {
     circle(this.CX + this.EnemySize, this.CY + this.EnemySize, 35);
     text(
       this.Level,
-      this.X + Center(this.Size) - 6,
+      this.X + Center(this.Size) - 4,
       this.Y + Center(this.Size) + 6
     );
   }
@@ -751,17 +699,17 @@ class DamageTower extends Tower {
     this.AttackSpeed = 0.3;
     this.Upgrade = [
       1.5,
-      0.1,
+      0.3,
       130,
-      700,
+      1200,
       2,
-      0.05,
-      150,
-      1000,
-      2.5,
-      0.03,
+      0.3,
       150,
       2000,
+      2.5,
+      0.3,
+      150,
+      3000,
     ];
     this.EffectiveDamage = ["none"];
     this.Selling = false;
@@ -774,8 +722,8 @@ class DamageTower extends Tower {
       for (let i = 0; i < PlacedTowers.length; i++) {
         let IndexOfEnemy = PlacedTowers[i];
         distance = dist(
-          this.X,
-          this.Y,
+          this.X + Center(this.Size),
+          this.Y + Center(this.Size),
           IndexOfEnemy.X + IndexOfEnemy.Size / 2,
           IndexOfEnemy.Y + IndexOfEnemy.Size / 2
         );
@@ -831,7 +779,7 @@ class DamageTower extends Tower {
     circle(this.CX + this.EnemySize, this.CY + this.EnemySize, 35);
     text(
       this.Level,
-      this.X + Center(this.Size) - 6,
+      this.X + Center(this.Size) - 4,
       this.Y + Center(this.Size) + 6
     );
   }
@@ -864,8 +812,8 @@ class RadarTower extends Tower {
       for (let i = 0; i < PlacedTowers.length; i++) {
         let IndexOfEnemy = PlacedTowers[i];
         distance = dist(
-          this.X,
-          this.Y,
+          this.X + Center(this.Size),
+          this.Y + Center(this.Size),
           IndexOfEnemy.X + IndexOfEnemy.Size / 2,
           IndexOfEnemy.Y + IndexOfEnemy.Size / 2
         );
@@ -884,10 +832,6 @@ class RadarTower extends Tower {
         }
       }
     }
-  }
-
-  OnUpgrade() {
-    //NoLongerNeeded
   }
 
   SellTower() {
@@ -952,8 +896,8 @@ class AntiTankTower extends Tower {
       for (let i = 0; i < PlacedTowers.length; i++) {
         let IndexOfEnemy = PlacedTowers[i];
         distance = dist(
-          this.X,
-          this.Y,
+          this.X + Center(this.Size),
+          this.Y + Center(this.Size),
           IndexOfEnemy.X + IndexOfEnemy.Size / 2,
           IndexOfEnemy.Y + IndexOfEnemy.Size / 2
         );
@@ -972,10 +916,6 @@ class AntiTankTower extends Tower {
         }
       }
     }
-  }
-
-  OnUpgrade() {
-    //NoLongerNeeded
   }
 
   SellTower() {
@@ -1007,7 +947,7 @@ class AntiTankTower extends Tower {
     circle(this.CX + this.EnemySize, this.CY + this.EnemySize, 35);
     text(
       this.Level,
-      this.X + Center(this.Size) - 6,
+      this.X + Center(this.Size) - 4,
       this.Y + Center(this.Size) + 6
     );
   }
