@@ -11,8 +11,8 @@ class Enemy {
   //This is the defualt settings for the enemy
   constructor() {
     this.H = 30;
-    this.X = MapData[6] - Center(this.H);
-    this.Y = MapData[7] - this.H;
+    this.X = 0;
+    this.Y = 0;
     this.Speed = 30;
     this.ActualSpeed = this.Speed;
     this.CurrentPoint = 0;
@@ -31,6 +31,7 @@ class Enemy {
     this.FrozenAmount = 0;
     this.FrozenClock = 10;
     this.Frozen = false;
+    this.HealthDoubled = false;
   }
 
   //Moves the enemy along the path
@@ -39,7 +40,7 @@ class Enemy {
   //It then moves itself towards the target
   //Once it reaches the point, it will set the new target to the next pathpoint
   //Repeat this untill there are no path points
-  //Remove health from the game health based on the towers health
+  //Remove health from the game health for each enemy that crossed the end point
   move() {
     if (this.ActualSpeed <= 3) {
       this.ActualSpeed = 3;
@@ -62,7 +63,7 @@ class Enemy {
       if (this.CurrentPoint >= PathPoints.length / 2) {
         let index = Enemies.indexOf(this);
         Enemies.splice(index, 1);
-        GameHealth -= floor(this.Health);
+        GameHealth--;
       }
     }
     if (this.Y == TargetY) {
@@ -105,6 +106,9 @@ class Enemy {
     ) {
       fill(this.RainbowColor, 0, 0);
     }
+    if (this.HealthDoubled == true) {
+      fill(0);
+    }
 
     if (this.Blimp == true) {
       if (this.Turning == true) {
@@ -146,14 +150,13 @@ class Enemy {
     }
   }
 
-  //This method will loop throught all debuffs and do things to the enemy
-  //Like freeze or poison
-  //its a dumb way of doing it but I just want it to work at this point
+  //This makes the enemy speed / 2 if the tower is hit with the
+  //reeze Debuff from the freeze tower
   DebuffHandler() {
     this.ActualSpeed = this.Speed;
     if (this.Frozen == true) {
       this.FrozenClock++;
-      this.ActualSpeed = this.Speed / 2;
+      this.ActualSpeed = this.Speed / 3;
       if (this.FrozenClock >= this.FrozenAmount) {
         this.FrozenClock = 0;
         this.Frozen = false;
@@ -161,23 +164,55 @@ class Enemy {
     }
   }
 
+  //This sets up the regen types of enemies
+  //Regen just return 20% of the orginal health
+  //Also checks to make sure that the current health is not
+  //More then the orginal health
   RegenHandler() {
     if (this.CanRegen == true) {
       this.RegenCounter++;
       if (this.RegenCounter == 100) {
         if (this.Health < this.OrginalHealth) {
-          if (this.OrginalHealth <= 5) {
-            this.Health += this.OrginalHealth / 2;
-          } else {
-            this.Health += this.OrginalHealth / 4;
-          }
-        }
-        this.RegenCounter = 0;
-        if (this.Health > this.OrginalHealth) {
-          this.Health = this.OrginalHealth;
+          this.Health += this.OrginalHealth / 4;
         }
       }
+      this.RegenCounter = 0;
+      if (this.Health > this.OrginalHealth) {
+        this.Health = this.OrginalHealth;
+      }
     }
+  }
+
+  //Dynamicly Sets the health of the enemy, based on the wave
+  //Starts easy, then should get harder and harder
+  SetHealth() {
+    let Middle;
+    if (WaveCount > 40) {
+      Middle = floor(1 + (WaveCount - 1) * 1.5);
+    } else {
+      Middle = floor(1 + (WaveCount - 1) * 2.5);
+    }
+    if (WaveCount >= 20) {
+      this.Health = floor(random(Middle, Middle + 11));
+    } else {
+      this.Health = Middle;
+    }
+    if (this.Health <= 0) {
+      this.Health = 1;
+    }
+
+    if (this.Blimp == true) {
+      this.Health *= 3;
+    }
+
+    if (this.HealthDoubled == true) {
+      this.Health *= 2;
+    }
+
+    if (this.wtf == true) {
+      this.Health *= 10;
+    }
+    this.OrginalHealth = this.Health;
   }
 }
 
@@ -188,70 +223,48 @@ class Enemy {
 //Health and Speed are passed in throught the enemy spawning functions
 //I wanted to be able to controll the health and speed
 class Soldier extends Enemy {
-  constructor(Health, Speed) {
+  constructor(Speed) {
     super();
-    this.Health = Health;
-    this.OrginalHealth = Health;
     this.Speed = Speed;
   }
 }
 
 class Camo extends Enemy {
-  constructor(Health, Speed) {
+  constructor(Speed) {
     super();
-    this.Health = Health;
-    this.OrginalHealth = Health;
     this.Speed = Speed;
     this.SpecialType = ["camo"];
   }
 }
 
 class Tank extends Enemy {
-  constructor(Health, Speed) {
+  constructor(Speed) {
     super();
-    this.Health = Health;
-    this.OrginalHealth = Health;
     this.Speed = Speed;
     this.SpecialType = ["tank"];
   }
 }
 
 class CamoTank extends Enemy {
-  constructor(Health, Speed) {
+  constructor(Speed) {
     super();
-    this.Health = Health;
-    this.OrginalHealth = Health;
     this.Speed = Speed;
     this.SpecialType = ["camo", "tank"];
   }
 }
 
-class Blimp extends Enemy {
-  constructor(Health, Speed) {
-    super();
-    this.Health = Health;
-    this.OrginalHealth = Health;
-    this.Speed = Speed;
-    this.Blimp = true;
-  }
-}
-
 //Enemies that can regen
 class Regen extends Enemy {
-  constructor(Health, Speed) {
+  constructor(Speed) {
     super();
-    this.Health = Health;
-    this.OrginalHealth = Health;
     this.Speed = Speed;
     this.CanRegen = true;
   }
 }
 
 class RegenCamo extends Enemy {
-  constructor(Health, Speed) {
+  constructor(Speed) {
     super();
-    this.Health = Health;
-    this.OrginalHealth = Health;
     this.Speed = Speed;
     this.SpecialType = ["camo"];
     this.CanRegen = true;
@@ -259,23 +272,74 @@ class RegenCamo extends Enemy {
 }
 
 class RegenTank extends Enemy {
-  constructor(Health, Speed) {
+  constructor(Speed) {
     super();
-    this.Health = Health;
-    this.OrginalHealth = Health;
     this.Speed = Speed;
     this.SpecialType = ["tank"];
     this.CanRegen = true;
   }
 }
 class RegenCamoTank extends Enemy {
-  constructor(Health, Speed) {
+  constructor(Speed) {
     super();
-    this.Health = Health;
-    this.OrginalHealth = Health;
     this.Speed = Speed;
     this.SpecialType = ["camo", "tank"];
     this.CanRegen = true;
   }
 }
 
+//Blimp Types
+class Blimp extends Enemy {
+  constructor(Speed) {
+    super();
+    this.Speed = Speed;
+    this.Blimp = true;
+  }
+}
+
+class CamoBlimp extends Enemy {
+  constructor(Speed) {
+    super();
+    this.Speed = Speed;
+    this.Blimp = true;
+    this.SpecialType = ["camo"];
+  }
+}
+
+class TankBlimp extends Enemy {
+  constructor(Speed) {
+    super();
+    this.Speed = Speed;
+    this.Blimp = true;
+    this.SpecialType = ["tank"];
+  }
+}
+
+class CamoTankBlimp extends Enemy {
+  constructor(Speed) {
+    super();
+    this.Speed = Speed;
+    this.Blimp = true;
+    this.SpecialType = ["camo", "tank"];
+  }
+}
+
+//Blimp Types
+class DoubleBlimp extends Enemy {
+  constructor(Speed) {
+    super();
+    this.Speed = Speed;
+    this.Blimp = true;
+    this.HealthDoubled = true;
+  }
+}
+
+class WTF extends Enemy {
+  constructor(Speed) {
+    super();
+    this.Speed = Speed;
+    this.Blimp = true;
+    this.wtf = true;
+    this.SpecialType = ["camo", "tank"];
+  }
+}
