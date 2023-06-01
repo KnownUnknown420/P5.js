@@ -8,7 +8,7 @@ let GameMoney;
 const Xmax = 600;
 const Ymax = 600;
 const ShopSize = 200;
-let GameHealth = 100;
+let GameHealth = Infinity;
 let StartMoney = 450; //Defualt 450
 let WaveReward = 100;
 let GamePaused = true;
@@ -16,13 +16,14 @@ let GamePaused = true;
 //Standard draw function that runs all the code and stuffs
 //A few Color and drawling fixes are applied after certin function calls
 function draw() {
+  PlaySoundTrackMusic();
+  if (GamePaused == false) {
+    PauseButton.style("background-color", "green");
+  } else {
+    PauseButton.style("background-color", "red");
+  }
   if (DrawingMenu == true) {
-    if (MainMenu) {
-      textSize(30);
-      text("Squares and Circles", Ymax / 2 - 30, 150);
-      textSize(20);
-      text("A tower defence game", Ymax / 2, 200);
-    }
+    ColorPulse();
     //checks to see if the menu is visible
     //If it is, we dont need to draw the game
     DrawMenu();
@@ -66,7 +67,7 @@ function draw() {
     //Shows all bullets\
     ShowAttacks();
 
-    //Set waves thingy
+    //Set waves thing
     GenerateWaves();
 
     //Checks if pause menu is enabled and draws it
@@ -82,26 +83,38 @@ function draw() {
       GameHealth = 0;
     }
   }
+  GameClock();
 }
 
 //setup just used for the menu
 function setup() {
   createCanvas(Xmax + ShopSize, Ymax);
+  WaveData = GetWaveList();
+  DataBase = new DataHandler();
+  DataBase.LoadUserData();
+
 }
 
 //Small function to reset game
+//and all coraspodning vars
 //like the wave and game money
 function ResetGame() {
   GameHealth = 100;
   WaveReward = 100;
   GamePaused = true;
   GameRestarting = true;
-  WaveIndex = 0;
+  ArrayIndex = 0;
   WaveCount = 1;
   EnemyMakerInstances = [];
   Enemies = [];
   PlacedTowers = [];
   GameMoney = StartMoney;
+  WavesCompleted = false;
+  SelectedTower = false;
+  DataBase.DataPushGameStart();
+  PushedData = false;
+  IncrementValue = 1;
+  DisablePlacing = false;
 }
 
 //Also have key detection here,
@@ -110,6 +123,10 @@ function keyPressed() {
   if (keyCode === 32) {
     PauseGame();
   }
+  if (keyCode === 187) {
+    ResetMapData();
+  }
+
   if (keyCode === 27 && DrawingMenu == false) {
     PauseMenuEnabled = !PauseMenuEnabled;
     if (PauseMenuEnabled == false) {
