@@ -75,7 +75,7 @@ let Price = {
 let ButtonColor;
 let DisablePlacing = false;
 
-//this function refreshes the tower data i guess???
+//this function refreshes the tower data i guess??? (its is)
 function RefreshText() {
   if (SelectedTower.Level < 4) {
     text(SelectedTower.Upgrade[SelectedTower.Level * 4 - 1], 585, 530);
@@ -91,11 +91,14 @@ function RefreshText() {
   text("Kills: " + SelectedTower.KillCount, 680, 520);
 }
 
-//the ONE ONLY dynamic function in this enitre shop thingy
+//the one good function
 function UpgradeTower() {
   PlayClick();
   let index = SelectedTower.Level * 4;
-  if (SelectedTower.Type == "Booster") {
+  if (
+    SelectedTower.Type == "Booster" &&
+    GameMoney >= SelectedTower.Upgrade[index - 1]
+  ) {
     for (let i = 0; i < PlacedTowers.length; i++) {
       if (
         PlacedTowers[i].BoostedBy.includes(SelectedTower) &&
@@ -106,19 +109,19 @@ function UpgradeTower() {
     }
   }
   if (GameMoney >= SelectedTower.Upgrade[index - 1]) {
+    PlayUpgradeSound()
     GameMoney -= SelectedTower.Upgrade[index - 1];
     SelectedTower.Damage = SelectedTower.Upgrade[index - 4];
     SelectedTower.AttackSpeed = SelectedTower.Upgrade[index - 3];
     SelectedTower.Radius = SelectedTower.Upgrade[index - 2];
     SelectedTower.Level++;
-    if (SelectedTower.Type == "Booster") {
+    if (SelectedTower.Type == "Booster" && SelectedTower.Name == "FOB") {
       SelectedTower.OnUpgrade();
     }
     RefreshText();
   }
 }
 
-//make this the second one, sells stuff
 //Boost Towers have custom seling method
 function SellTower() {
   PlayClick();
@@ -222,7 +225,7 @@ function PlaceFreezeTower() {
 
 function PlaceNinjaTower() {
   PlayClick();
-  if (GameMoney >= Price.BasicTower && DisablePlacing == false) {
+  if (GameMoney >= Price.NinjaTower && DisablePlacing == false) {
     SelectedTower = false;
     DisablePlacing = true;
     let NewTowerType = new NinjaTower();
@@ -305,8 +308,14 @@ function DrawGameImages() {
 
 // Function to draw all game text to the screen
 function DrawGameText() {
+  if (MapPlayed == 6) {
+    fill(255);
+  } else {
+    fill(0);
+  }
   HealthText = text(GameHealth, 50, 30);
   MoneyText = text(floor(GameMoney), 135, 30);
+  fill(0);
   let FPSAmount = ceil(frameRate() / 5) * 5;
   FPS = text(FPSAmount, 520, 20);
   WaveText = text("Wave: " + WaveCount, 565, 385);
