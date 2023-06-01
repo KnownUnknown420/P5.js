@@ -22,9 +22,9 @@ function SpawnEnemiesInEnemyMakerInstances() {
 }
 
 //This is just a more readble and user friendly way of Making a EnemyMaker Instance
-function CreateEnemies(Type, Amount, Delay, Debounce, Health, Speed) {
+function CreateEnemies(Type, Amount, Delay, Debounce, Speed) {
   EnemyMakerInstances.push(
-    new EnemyMaker(Type, Amount, Delay, Debounce, Health, Speed)
+    new EnemyMaker(Type, Amount, Delay, Debounce, Speed)
   );
 }
 
@@ -32,19 +32,21 @@ function CreateEnemies(Type, Amount, Delay, Debounce, Health, Speed) {
 //This method allows Multiple EnemySpawners to be ran at once
 //This allows diffrent types of Enemies to be spawned at the same time
 //And Allows changes in health and speed on the fly
+let IncrementValue = 1;
+let SpawnX = 0;
+let SpawnY = 0;
 class EnemyMaker {
   //The Constrctor Method Contains Multiple Diffrent paramartiers:
-  constructor(Type, Amount, Delay, Debounce, Health, Speed) {
+  constructor(Type, Amount, Delay, Debounce, Speed) {
     this.Type = Type;
     this.Amount = Amount;
     this.Delay = Delay;
     this.Debounce = Debounce;
-    this.Health = Health;
     this.Speed = Speed;
     this.Count = 0;
     this.Timer = 0;
     this.DelayCheck = false;
-    this.OneEnemyCheck = false
+    this.OneEnemyCheck = false;
   }
 
   //SpawnEnemies() Method is used to create and add the Enemies to the Enemies array
@@ -70,19 +72,74 @@ class EnemyMaker {
       EnemyMakerInstances.splice(index, 1);
     }
     if (this.Amount == 1 && this.DelayCheck == true) {
-      let enemy = new this.Type(this.Health, this.Speed);
+      let enemy = new this.Type(this.Speed);
+      let SpawnPosition = this.GetSpawn(enemy);
+      enemy.X = SpawnX;
+      enemy.Y = SpawnY;
+      enemy.SetHealth();
       Enemies.push(enemy);
       EnemyMakerInstances.splice(index, 1);
     }
 
     if (this.Timer >= this.Debounce && this.DelayCheck == true) {
-      let enemy = new this.Type(this.Health, this.Speed);
+      let enemy = new this.Type(this.Speed);
+      let SpawnPosition = this.GetSpawn(enemy);
+      enemy.X = SpawnX;
+      enemy.Y = SpawnY;
+      enemy.SetHealth();
       Enemies.push(enemy);
       this.Count++;
       this.Timer = 0;
       if (this.Count == this.Amount) {
         EnemyMakerInstances.splice(index, 1);
       }
+    }
+  }
+  //Gets the starting value based on the map
+  //This functions allows for Diffrent starting points
+  //for each spawn on the map, only certin maps will have this value
+  //works by increment eaching starting point thats defined
+  GetSpawn(enemy) {
+    if (MapPlayed == 4) {
+      if (IncrementValue == 1) {
+        SpawnX = 200 - Center(enemy.H);
+        SpawnY = -30 - enemy.H;
+        IncrementValue = 2;
+        return;
+      }
+      if (IncrementValue == 2) {
+        SpawnX = -30 - Center(enemy.H);
+        SpawnY = 315 - enemy.H;
+        IncrementValue = 3;
+        return;
+      }
+      if (IncrementValue == 3) {
+        SpawnX = 200 - Center(enemy.H);
+        SpawnY = 630 - enemy.H;
+        IncrementValue = 1;
+        return;
+      }
+    } else {
+      SpawnX = MapData[6] - Center(enemy.H);
+      SpawnY = MapData[7] - enemy.H;
+    }
+
+    if (MapPlayed == 6) {
+      if (IncrementValue == 1) {
+        SpawnX = 560 - Center(enemy.H);
+        SpawnY = 340 - enemy.H;
+        IncrementValue = 2;
+        return;
+      }
+      if (IncrementValue == 2) {
+        SpawnX = -30 - Center(enemy.H);
+        SpawnY = 340 - enemy.H;
+        IncrementValue = 1;
+        return;
+      }
+    } else {
+      SpawnX = MapData[6] - Center(enemy.H);
+      SpawnY = MapData[7] - enemy.H;
     }
   }
 }
