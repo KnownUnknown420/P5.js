@@ -1,11 +1,83 @@
 //This file contains UniversalFunctions that dont really
 //Belong anywhere so they are specia I guess
+function SetMoney(health) {
+  if (health > 20) {
+    return 20;
+  } else {
+    return health;
+  }
+}
+
+let SecondCounter = 0;
+function GameClock() {
+  if (frameCount % 60 == 0) {
+    SecondCounter++;
+    if (SecondCounter == 60) {
+      SecondCounter = 0;
+      DataBase.DataPushPlayTime();
+    }
+  }
+}
+
 function heart(x, y, size) {
   beginShape();
   vertex(x, y);
   bezierVertex(x - size / 2, y - size / 2, x - size, y + size / 3, x, y + size);
   bezierVertex(x + size, y + size / 3, x + size / 2, y - size / 2, x, y);
   endShape(CLOSE);
+}
+
+//function that gets the starcount after each level is compelted
+function GetStarCount() {
+  if (GameHealth == 100) {
+    return 4;
+  }
+  if (GameHealth <= 25) {
+    return 1;
+  }
+  if (GameHealth <= 50) {
+    return 2;
+  }
+  if (GameHealth <= 99) {
+    return 3;
+  }
+}
+
+function star(x, y, radius1, radius2, npoints) {
+  let angle = TWO_PI / npoints;
+  let halfAngle = angle / 2.0;
+  beginShape();
+  for (let a = 0; a < TWO_PI; a += angle) {
+    let sx = x + cos(a) * radius2;
+    let sy = y + sin(a) * radius2;
+    vertex(sx, sy);
+    sx = x + cos(a + halfAngle) * radius1;
+    sy = y + sin(a + halfAngle) * radius1;
+    vertex(sx, sy);
+  }
+  endShape(CLOSE);
+}
+
+function PlaceStar(X, Y) {
+  push();
+  translate(X, Y);
+  rotate(frameCount / -100.0);
+  star(0, 0, 10, 20, 5);
+  pop();
+}
+
+let PulseColor = 150; // variable to store color
+let dir = 1; // how to change direction
+let acc = 3; // speed the color increases
+//https://editor.p5js.org/jarivkin/sketches/PZvu8tbU
+function ColorPulse() {
+  if (PulseColor > 255 || PulseColor < 0) {
+    //change the direction
+    dir = dir * -1;
+  }
+
+  //the method to switch color
+  PulseColor = PulseColor + acc * dir;
 }
 
 function CheckSpecialType(TowerPass, Enemy) {
@@ -35,12 +107,11 @@ function CheckSpecialType(TowerPass, Enemy) {
   return ReturnValue;
 }
 
-function PauseGame() {
-  GamePaused = !GamePaused;
-  if (GamePaused == false) {
-    PauseButton.style("background-color", "green");
+function PauseGame(Force = false) {
+  if (Force == true) {
+    GamePaused = true;
   } else {
-    PauseButton.style("background-color", "red");
+    GamePaused = !GamePaused;
   }
 }
 
@@ -52,12 +123,12 @@ function Center(size) {
 }
 
 //This is needed mutliple times
-function CheckRectIntersection(rect1, rect2) {
+function CheckRectIntersection(Rect1, Rect2) {
   if (
-    rect1.x < rect2.x + rect2.w &&
-    rect1.x + rect1.w > rect2.x &&
-    rect1.y < rect2.y + rect2.h &&
-    rect1.h + rect1.y > rect2.y
+    Rect1.x < Rect2.x + Rect2.w &&
+    Rect1.x + Rect1.w > Rect2.x &&
+    Rect1.y < Rect2.y + Rect2.h &&
+    Rect1.h + Rect1.y > Rect2.y
   ) {
     return true;
   }
@@ -70,8 +141,27 @@ function preload() {
   MoneyStackDirectory = loadImage("Images/STACK.png");
   Map1Directory = loadImage("Images/Map1.png");
   Map2Directory = loadImage("Images/Map2.png");
+  Map3Directory = loadImage("Images/Map3.png");
+  Map4Directory = loadImage("Images/Map4.png");
+  Map5Directory = loadImage("Images/Map5.png");
+  Map6Directory = loadImage("Images/Map6.png");
+  StarImage = loadImage("Images/Star.png");
 
   ClickSound = loadSound("Sound/ClickNoise.mp3");
+  UpgradeSound = loadSound("Sound/Upgrade.mp3");
+  WinSound = loadSound("Sound/Win.mp3");
+  LooseSound = loadSound("Sound/Loose.mp3");
+  KillSound = loadSound("Sound/PopNoise.mp3");
+  MenuMusic = loadSound("Sound/MenuTheme.mp3");
+  BTD5Theme = loadSound("Sound/BTD5Theme.mp3");
+  StreetMonkey = loadSound("Sound/StreetParty.mp3");
+  ZOMG = loadSound("Sound/ZOMG.mp3");
+  SpecialMission = loadSound("Sound/SpecialMission.mp3");
+  Remix = loadSound("Sound/Remix.mp3");
+  PopNoise = loadSound("Sound/PopNoise.mp3");
+
+  MapMusic = [ZOMG, BTD5Theme, StreetMonkey, SpecialMission, Remix];
+  PlayingMusic = MapMusic[0];
 
   FirstTargetButton = createButton("F");
   FirstTargetButton.style("background-color", "red");
@@ -109,7 +199,7 @@ function preload() {
   DeselectButton.size(105, 50);
   DeselectButton.mousePressed(DeselectTower);
 
-  BasicTowerButton = createButton("($" + Price.BasicTower + ") Soilder");
+  BasicTowerButton = createButton("($" + Price.BasicTower + ") Soldier");
   BasicTowerButton.style("background-color", "grey");
   BasicTowerButton.position(560, 10);
   BasicTowerButton.size(95, 50);
@@ -191,7 +281,7 @@ function preload() {
   AboutButton.style("background-color", "rgb(62,201,240)");
   AboutButton.position(Ymax / 2, 445);
   AboutButton.size(200, 50);
-  AboutButton.mousePressed(OnStartClick);
+  AboutButton.mousePressed(AboutClick);
 
   SettingsButton = createButton("Setting");
   SettingsButton.style("background-color", "rgb(62,201,240)");
@@ -201,7 +291,7 @@ function preload() {
 
   BackMenuButton = createButton("Back");
   BackMenuButton.style("background-color", "rgb(62,201,240)");
-  BackMenuButton.position(Ymax / 2, 490);
+  BackMenuButton.position(Ymax / 2, 530);
   BackMenuButton.size(200, 50);
   BackMenuButton.mousePressed(BackToMenu);
   BackMenuButton.hide();
@@ -252,27 +342,34 @@ function preload() {
   MapThreeButton.style("background-color", "rgb(62,201,240)");
   MapThreeButton.position(535, 170);
   MapThreeButton.size(200, 50);
-  MapThreeButton.mousePressed(PlayMapTwo);
+  MapThreeButton.mousePressed(PlayMapThree);
   MapThreeButton.hide();
 
   MapFourButton = createButton("Map 4");
   MapFourButton.style("background-color", "rgb(62,201,240)");
-  MapFourButton.position(65, 370);
+  MapFourButton.position(65, 470);
   MapFourButton.size(200, 50);
-  MapFourButton.mousePressed(PlayMapTwo);
+  MapFourButton.mousePressed(PlayMapFour);
   MapFourButton.hide();
 
   MapFiveButton = createButton("Map 5");
   MapFiveButton.style("background-color", "rgb(62,201,240)");
-  MapFiveButton.position(300, 370);
+  MapFiveButton.position(300, 470);
   MapFiveButton.size(200, 50);
-  MapFiveButton.mousePressed(PlayMapTwo);
+  MapFiveButton.mousePressed(PlayMapFive);
   MapFiveButton.hide();
 
   MapSixButton = createButton("Map 6");
   MapSixButton.style("background-color", "rgb(62,201,240)");
-  MapSixButton.position(535, 370);
+  MapSixButton.position(535, 470);
   MapSixButton.size(200, 50);
-  MapSixButton.mousePressed(PlayMapTwo);
+  MapSixButton.mousePressed(PlayMapSix);
   MapSixButton.hide();
+
+  BackMenuButton2 = createButton("Back");
+  BackMenuButton2.style("background-color", "rgb(62,201,240)");
+  BackMenuButton2.position(7, 0);
+  BackMenuButton2.size(50, 30);
+  BackMenuButton2.mousePressed(BackToMenu);
+  BackMenuButton2.hide();
 }
